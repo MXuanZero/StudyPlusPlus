@@ -185,6 +185,17 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
         title="拖动调整宽度，双击恢复默认"
       />
       <header className="chat-head">
+        {inline ? (
+          <button
+            type="button"
+            className="icon-btn chat-collapse-btn"
+            title="收起 AI 助教"
+            aria-label="收起 AI 助教"
+            onClick={onCollapse}
+          >
+            »
+          </button>
+        ) : null}
         <span className="chat-title">{inline ? 'AI 助教 · 分屏' : 'AI 助教'}</span>
         <span className="spacer" />
         <button
@@ -206,17 +217,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
         >
           ☰
         </button>
-        {inline ? (
-          <button
-            type="button"
-            className="icon-btn"
-            title="收起 AI 助教"
-            aria-label="收起 AI 助教"
-            onClick={onCollapse}
-          >
-            »
-          </button>
-        ) : (
+        {inline ? null : (
           <button type="button" className="icon-btn" title="关闭" aria-label="关闭对话面板" onClick={closePanel}>
             ×
           </button>
