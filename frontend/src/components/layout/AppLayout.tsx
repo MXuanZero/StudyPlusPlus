@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { QuoteSelectionHandler } from '../chat/QuoteSelectionHandler'
 import { useAppStore } from '../../store/appStore'
 
 export function AppLayout() {
@@ -24,6 +25,7 @@ export function AppLayout() {
       <main className="page-main">
         <Outlet />
       </main>
+      <QuoteSelectionHandler />
     </div>
   )
 }

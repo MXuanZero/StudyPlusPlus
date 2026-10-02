@@ -41,7 +41,7 @@ export function MarkdownRenderer({ markdown, widgets = [], stripLeadingHeading =
   }, [widgets])
 
   return (
-    <div className="markdown-body">
+    <div className="markdown-body" data-quotable>
       {segments.map((segment, index) => {
         if (segment.type === 'markdown') {
           return (

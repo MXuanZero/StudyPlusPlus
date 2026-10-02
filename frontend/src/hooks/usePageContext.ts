@@ -19,10 +19,12 @@ export function usePageContext(): ChatContext {
       if (!chapter) continue
       context.book = book.title
       context.chapter = chapter.title
+      context.chapter_id = chapter.id
       context.learning_path = [`${book.title}`, chapter.title]
       const topic = topicId ? chapter.topics.find((item) => item.id === topicId) : undefined
       if (topic) {
         context.topic = topic.title
+        context.topic_id = topic.id
         context.learning_path.push(topic.title)
       }
       break

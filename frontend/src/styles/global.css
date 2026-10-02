@@ -563,3 +563,13 @@ select.form-control { height: 38px; }
 }
 .topic-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
 .topic-toolbar .spacer { flex: 1; }
+
+/* ---------- Selection quote button ---------- */
+.quote-fab {
+  position: fixed; z-index: 95; display: inline-flex; align-items: center; gap: 6px;
+  background: #111827; color: #fff; border: none; border-radius: 8px;
+  padding: 7px 12px; font-size: 13px; line-height: 1.2; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+}
+.quote-fab:hover { background: #1f2937; }
+.quote-fab:active { transform: translateY(1px); }
