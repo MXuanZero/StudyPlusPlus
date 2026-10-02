@@ -222,9 +222,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
           delivered = true
           const messageId = data.message_id
           if (typeof messageId === 'string') {
+            // Keep the stable local id for the lifetime of this stream.
+            // Replacing it here makes later `delta` events unable to find the
+            // assistant message, which caused the bubble to stay at "…".
             set((state) => ({
               messages: state.messages.map((message) =>
-                message.id === assistantMessage.id ? { ...message, id: messageId } : message,
+                message.id === assistantMessage.id
+                  ? {
+                      ...message,
+                      meta: {
+                        ...(message.meta ?? {}),
+                        message_id: messageId,
+                      },
+                    }
+                  : message,
               ),
             }))
           }
