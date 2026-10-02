@@ -86,10 +86,23 @@ app.include_router(progress.router, prefix=API_PREFIX)
 app.include_router(notes.router, prefix=API_PREFIX)
 
 
+def _index_file_response() -> FileResponse:
+    """Return index.html with no-cache headers.
+
+    The JS/CSS filenames are content-hashed, but index.html itself must be
+    revalidated so a stale bundle is not kept by the browser after a rebuild.
+    """
+    response = FileResponse(settings.frontend_dist / "index.html")
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+
 @app.get("/", include_in_schema=False)
 def root():
     if settings.frontend_dist.exists():
-        return FileResponse(settings.frontend_dist / "index.html")
+        return _index_file_response()
     return {"name": settings.app_name, "docs": "/docs", "health": f"{API_PREFIX}/health"}
 
 
@@ -110,7 +123,7 @@ def _mount_frontend() -> None:
     def spa_fallback(full_path: str):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "接口不存在"})
-        return FileResponse(settings.frontend_dist / "index.html")
+        return _index_file_response()
 
 
 _mount_frontend()
