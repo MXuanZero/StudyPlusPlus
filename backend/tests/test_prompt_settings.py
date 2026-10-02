@@ -18,6 +18,11 @@ def client(tmp_path, monkeypatch):
         yield test_client
 
 
+def test_default_prompt_requires_latex_formula_style() -> None:
+    assert "LaTeX" in prompt.load_default_system_prompt()
+    assert "$...$" in prompt.load_default_system_prompt()
+
+
 def test_prompt_settings_default_custom_and_reset(client: TestClient) -> None:
     default_prompt = prompt.load_default_system_prompt()
 
