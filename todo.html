@@ -203,10 +203,11 @@ const PROJECT = {
   phase: "T1–T9 已完成；T10 独立验收中",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "执行 T10 独立验收与生产模式联调"
+  nextAction: "等待 QA 独立验收报告；随后修复问题并完成人工浏览器复核"
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T10 启动：Lead 已完成生产单端口 smoke（SPA/健康/课程/计算/设置/进度/聊天 Mock SSE 均正常）；qa-dev 进行独立验收。" },
   { date: "2026-10-02", text: "T2 完成：两卷课程目录、ch05 五节 Markdown、内容加载器与课程 API 完成；后端测试 66 passed（ade333a / 3c23ed8 / 10e8f5c / b8bb4c5 / 095aeb2 / 559c455）。" },
   { date: "2026-10-02", text: "T6+T8 后端完成：LLM 客户端、Mock、Key 脱敏、设置接口、SSE 会话持久化；66 个后端测试通过（e88c34b/2797183/5b84177）。" },
   { date: "2026-10-02", text: "T3 完成：二阶仿真、指标、compare/presets API 与 30 个 pytest 全部通过；commit bd2012b/7a3c37d/96d164c。" },
@@ -428,7 +429,7 @@ const TASKS = [
     id: "T10",
     title: "联调、测试与验收",
     phase: "测试 / 交付",
-    status: "pending",
+    status: "in_progress",
     owner: "测试智能体 + 全栈",
     deps: ["T4", "T5", "T7", "T8", "T9"],
     deliverable: "pytest 全绿、前端 build 无错误、生产单端口可访问、验收记录。",
