@@ -42,6 +42,7 @@ function loadPendingQuotes(): ChatQuote[] {
       .map(sanitizeQuote)
       .filter((quote): quote is ChatQuote => quote !== null)
       .slice(0, MAX_PENDING_QUOTES)
+      .map((quote, index) => (quote.id ? quote : { ...quote, id: `quote_restored_${Date.now()}_${index}` }))
   } catch {
     return []
   }
