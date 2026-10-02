@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudyPlusPlus · 开发进度</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #f8fafc;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef2ff;
+    --success: #16a34a;
+    --success-soft: #f0fdf4;
+    --warning: #d97706;
+    --warning-soft: #fffbeb;
+    --danger: #dc2626;
+    --danger-soft: #fef2f2;
+    --info: #2563eb;
+    --info-soft: #eff6ff;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 32px 80px; }
+  header { padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { margin: 8px 0 4px; font-size: 32px; letter-spacing: -.02em; }
+  .subtitle { color: var(--muted); margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 18px; color: var(--muted); font-size: 14px; }
+  .meta b { color: var(--text); font-weight: 600; }
+
+  .summary {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 16px;
+    margin: 26px 0 34px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .card .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+  .card .value { font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+  .card .hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .progress-track { height: 10px; background: #eef0f3; border-radius: 999px; overflow: hidden; margin-top: 14px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 999px; width: 0%; transition: width .3s ease; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 22px; font-size: 13px; color: var(--muted); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
+  .badge.completed { background: var(--success-soft); color: var(--success); border-color: #bbf7d0; }
+  .badge.in_progress { background: var(--info-soft); color: var(--info); border-color: #bfdbfe; }
+  .badge.pending { background: #f3f4f6; color: #4b5563; border-color: #e5e7eb; }
+  .badge.blocked { background: var(--danger-soft); color: var(--danger); border-color: #fecaca; }
+
+  .section-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 34px 0 14px; }
+  .section-title h2 { margin: 0; font-size: 19px; }
+  .section-title .count { color: var(--muted); font-size: 13px; }
+
+  .task {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .task.completed { border-color: #bbf7d0; }
+  .task.in_progress { border-color: #bfdbfe; box-shadow: 0 0 0 1px #dbeafe inset; }
+  .task.blocked { border-color: #fecaca; }
+  .task-head {
+    display: grid;
+    grid-template-columns: 74px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 15px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .task-head:hover { background: #fcfcfd; }
+  .task-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 700; color: var(--accent); }
+  .task-title { font-weight: 650; }
+  .task-desc { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .task-right { display: flex; align-items: center; gap: 12px; }
+  .mini-track { width: 86px; height: 6px; background: #eef0f3; border-radius: 999px; overflow: hidden; }
+  .mini-fill { height: 100%; background: var(--accent); border-radius: 999px; width: 0%; }
+  .chev { color: #9ca3af; transition: transform .2s ease; }
+  .task.open .chev { transform: rotate(90deg); }
+  .task-body { display: none; padding: 0 18px 18px 106px; }
+  .task.open .task-body { display: block; }
+  .task-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-bottom: 14px; }
+  .kv { font-size: 13px; }
+  .kv .k { color: var(--muted); margin-bottom: 3px; }
+  .kv .v { color: var(--text); }
+  .subtasks { list-style: none; margin: 0; padding: 0; border-top: 1px dashed var(--border); }
+  .subtasks li { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px dashed #f0f1f3; font-size: 14px; }
+  .subtasks li:last-child { border-bottom: 0; }
+  .check { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 5px; border: 1.5px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; margin-top: 2px; }
+  .subtasks li.done .check { background: var(--success); border-color: var(--success); }
+  .subtasks li.done .text { color: #6b7280; text-decoration: line-through; text-decoration-color: #d1d5db; }
+  .deps { color: var(--muted); font-size: 12px; }
+
+  .update-log { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .update-log th, .update-log td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .update-log th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .note { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; color: #4b5563; font-size: 14px; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  @media (max-width: 900px) {
+    .summary { grid-template-columns: 1fr; }
+    .task-body { padding-left: 18px; }
+    .task-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">StudyPlusPlus</div>
+    <h1>开发进度看板</h1>
+    <p class="subtitle">控制理论可视化学习网站 · 所有开发阶段与验收项</p>
+    <div class="meta">
+      <span>当前阶段：<b id="phaseText">需求补充 / 暂缓开发</b></span>
+      <span>最后更新：<b id="lastUpdated">2026-10-02</b></span>
+      <span>开发状态：<b id="devStatus">未开始编码</b></span>
+    </div>
+  </header>
+
+  <section class="summary">
+    <div class="card">
+      <div class="label">总体进度</div>
+      <div class="value"><span id="overallPercent">0</span>%</div>
+      <div class="progress-track"><div class="progress-fill" id="overallBar"></div></div>
+      <div class="hint" id="overallHint">已完成 0 / 0 个子项</div>
+    </div>
+    <div class="card">
+      <div class="label">任务进度</div>
+      <div class="value"><span id="doneTasks">0</span> / <span id="totalTasks">0</span></div>
+      <div class="hint">已完成任务 / 全部任务</div>
+    </div>
+    <div class="card">
+      <div class="label">下一步</div>
+      <div class="value" style="font-size:16px;line-height:1.5;" id="nextAction">等待用户补充需求</div>
+      <div class="hint">需求冻结后从 T1 开始</div>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span class="badge completed">✓ 已完成</span>
+    <span class="badge in_progress">● 进行中</span>
+    <span class="badge pending">○ 待开始</span>
+    <span class="badge blocked">! 受阻</span>
+    <span style="margin-left:auto;">点击任务行可展开/收起详情</span>
+  </div>
+
+  <div class="section-title">
+    <h2>开发任务</h2>
+    <span class="count" id="filterNote">按阶段顺序排列</span>
+  </div>
+  <div id="taskList"></div>
+
+  <div class="section-title">
+    <h2>更新日志</h2>
+  </div>
+  <table class="update-log">
+    <thead>
+      <tr><th style="width:120px;">日期</th><th>更新内容</th></tr>
+    </thead>
+    <tbody id="updateLog"></tbody>
+  </table>
+
+  <div class="section-title">
+    <h2>维护说明</h2>
+  </div>
+  <div class="note">
+    <p style="margin-top:0;">更新进度时，只需修改本文件 <code>&lt;script&gt;</code> 中的 <code>TASKS</code> 数组：</p>
+    <ul style="margin:8px 0 0 18px; padding:0;">
+      <li>把任务的 <code>status</code> 改为 <code>"pending"</code>、<code>"in_progress"</code>、<code>"completed"</code> 或 <code>"blocked"</code>。</li>
+      <li>把子项的 <code>done</code> 改为 <code>true</code> 或 <code>false</code>；页面会自动计算总进度和任务进度。</li>
+      <li>每次更新后，同时在 <code>UPDATE_LOG</code> 中追加一行日期与说明。</li>
+    </ul>
+    <p style="margin-bottom:0;">所有开发必须遵循 <code>docs/04_开发任务拆分与验收.md</code> 中的 Definition of Done。</p>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   更新进度：修改下面的 status 和 subtasks[].done 即可。
+   status: pending | in_progress | completed | blocked
+   ========================================================= */
+const PROJECT = {
+  name: "StudyPlusPlus",
+  phase: "需求补充 / 暂缓开发",
+  devStatus: "未开始编码",
+  lastUpdated: "2026-10-02",
+  nextAction: "等待用户补充需求"
+};
+
+const UPDATE_LOG = [
+  { date: "2026-10-02", text: "完成 v0.1 设计文档：PRD、技术方案、二阶系统模块详细设计、开发任务拆分。" },
+  { date: "2026-10-02", text: "确认网站名称为 StudyPlusPlus；确认白色简洁桌面端风格；LLM 不写死，默认 DeepSeek。" },
+  { date: "2026-10-02", text: "创建 todo.html 开发进度看板；当前暂缓开发，等待需求补充。" }
+];
+
+const TASKS = [
+  {
+    id: "DOC",
+    title: "需求与设计文档",
+    phase: "准备阶段",
+    status: "completed",
+    owner: "产品 / 文档",
+    deps: [],
+    deliverable: "docs/ 下 5 份文档成稿，并通过用户确认。",
+    acceptance: "需求范围、技术方案、二阶系统模块设计、任务拆分与验收标准完整。",
+    subtasks: [
+      { text: "确认网站名称 StudyPlusPlus", done: true },
+      { text: "确认 MVP：二阶系统时域响应分析", done: true },
+      { text: "确认界面：白色、简洁、桌面端、不做移动端", done: true },
+      { text: "确认 LLM 策略：不写死，默认 DeepSeek，可切换 OpenAI 兼容 / Ollama", done: true },
+      { text: "完成 PRD、技术方案、二阶模块设计、任务拆分四份文档", done: true },
+      { text: "创建并维护 todo.html 开发进度看板", done: true }
+    ]
+  },
+  {
+    id: "REQ",
+    title: "需求补充与冻结",
+    phase: "准备阶段",
+    status: "in_progress",
+    owner: "用户 + 产品",
+    deps: ["DOC"],
+    deliverable: "用户补充的新需求全部写入 docs/，并确认需求冻结。",
+    acceptance: "用户明确说“开始开发”；PRD 与任务拆分无未决项。",
+    subtasks: [
+      { text: "用户整理 StudyPlusPlus 还需要哪些功能 / 内容", done: false },
+      { text: "新增需求写入 docs/00_README.md 与 docs/01_产品需求文档.md", done: false },
+      { text: "必要时同步调整 docs/02、docs/03、docs/04", done: false },
+      { text: "用户确认需求冻结，允许进入 T1", done: false }
+    ]
+  },
+  {
+    id: "T1",
+    title: "工程脚手架",
+    phase: "基础设施",
+    status: "pending",
+    owner: "全栈智能体",
+    deps: ["REQ"],
+    deliverable: "前后端可启动骨架、健康检查接口、SQLite 建表、Vite 代理与 CORS。",
+    acceptance: "按文档命令可同时启动前后端，访问首页与 /api/v1/health 正常。",
+    subtasks: [
+      { text: "requirements.txt 追加 FastAPI、uvicorn、httpx、PyYAML、pytest 等后端依赖", done: false },
+      { text: "实现 backend/app/main.py 与 GET /api/v1/health", done: false },
+      { text: "初始化 frontend：Vite + React + TypeScript，首页占位", done: false },
+      { text: "配置 Vite /api 代理到 127.0.0.1:8000，配置 CORS", done: false },
+      { text: "建立 data/ 与 SQLite 表结构（progress / notes / chat / settings）", done: false },
+      { text: "更新 .gitignore，忽略数据库、node_modules、dist、.env", done: false },
+      { text: "完成 T1 启动验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T2",
+    title: "课程数据与内容骨架",
+    phase: "课程内容",
+    status: "pending",
+    owner: "内容智能体",
+    deps: ["T1"],
+    deliverable: "curriculum.json、第 5 章 5 个 Markdown 文件、content_loader 与课程 API。",
+    acceptance: "目录与 Reference 一致；ch05-03 接口返回正文、widgets、prev/next。",
+    subtasks: [
+      { text: "生成 curriculum.json：两卷完整目录，仅 ch05 标为 available", done: false },
+      { text: "编写 ch05 五个知识点 Markdown：05-01 至 05-05", done: false },
+      { text: "实现 content_loader.py：解析 Frontmatter、目录与 topic", done: false },
+      { text: "实现 GET /api/v1/curriculum 与 GET /api/v1/topics/{topic_id}", done: false },
+      { text: "确保每节包含学习目标、正文、widget 占位、折叠推导", done: false },
+      { text: "完成 T2 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T3",
+    title: "二阶仿真计算服务",
+    phase: "算法 / 后端",
+    status: "pending",
+    owner: "算法 / 后端智能体",
+    deps: ["T1"],
+    deliverable: "second_order.py、compute 路由、Pydantic schema 与 pytest 测试。",
+    acceptance: "03 文档 6.1 节 TC-C01 至 TC-C08 全部通过。",
+    subtasks: [
+      { text: "定义 simulate / compare / presets 请求与响应 schema", done: false },
+      { text: "实现阶跃、冲激、初始状态三类仿真（scipy.signal / solve_ivp）", done: false },
+      { text: "实现极点、阻尼分类与性能指标计算", done: false },
+      { text: "实现参数校验、错误码与 diagnostics", done: false },
+      { text: "实现 compare（最多 4 组）与 presets 接口", done: false },
+      { text: "编写并通过 TC-C01 至 TC-C08 的 pytest", done: false },
+      { text: "完成 T3 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T4",
+    title: "二阶可视化实验室",
+    phase: "前端",
+    status: "pending",
+    owner: "前端智能体",
+    deps: ["T2", "T3"],
+    deliverable: "WidgetRenderer、SecondOrderLab、时域图、极点图、指标表、对比与导出。",
+    acceptance: "03 文档 6.2 节 TC-U01 至 TC-U06 全部通过；计算全部走后端。",
+    subtasks: [
+      { text: "实现 WidgetRenderer 注册机制", done: false },
+      { text: "实现 SecondOrderLab 控制区：模式、ζ、ωn、初值、时间范围、预设", done: false },
+      { text: "实现 TimeResponsePlot 时域响应图", done: false },
+      { text: "实现 PoleZeroMap 极点图", done: false },
+      { text: "实现 MetricsTable 指标表（数值值 + 近似公式值）", done: false },
+      { text: "实现最多 4 组对比模式与 CSV 导出", done: false },
+      { text: "实现 150ms debounce、请求状态与错误提示", done: false },
+      { text: "在 ch05 各知识点正确挂载组件", done: false },
+      { text: "完成 T4 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T5",
+    title: "课程阅读与公式渲染",
+    phase: "前端",
+    status: "pending",
+    owner: "前端智能体",
+    deps: ["T1", "T2"],
+    deliverable: "首页、章节页、目录树、Markdown/KaTeX 渲染、折叠推导与上下节导航。",
+    acceptance: "第 5 章可完整阅读；公式渲染正确；规划中章节不可进入。",
+    subtasks: [
+      { text: "实现 HomePage：欢迎语、课程总览、进度占位", done: false },
+      { text: "实现 ChapterPage：左侧目录树 + 中间正文布局", done: false },
+      { text: "实现 MarkdownRenderer：react-markdown + KaTeX", done: false },
+      { text: "实现 :::details 推导折叠块渲染", done: false },
+      { text: "实现 [[widget:...]] 占位与 WidgetRenderer 协作", done: false },
+      { text: "实现上一节 / 下一节导航与 planned 状态", done: false },
+      { text: "完成 T5 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T6",
+    title: "AI 对话服务（后端）",
+    phase: "后端 / AI",
+    status: "pending",
+    owner: "后端智能体",
+    deps: ["T1"],
+    deliverable: "llm.py、prompt.py、chat 路由、SSE 流式接口、会话与历史持久化。",
+    acceptance: "无 Key 时返回 Mock；配置 DeepSeek 后流式正常；错误不泄露 Key。",
+    subtasks: [
+      { text: "实现 OpenAI 兼容流式客户端与 Base URL 规范化", done: false },
+      { text: "实现 DeepSeek / OpenAI / Ollama / custom 预设与配置读取", done: false },
+      { text: "实现 Mock 模式与错误事件格式", done: false },
+      { text: "实现 tutor_system.md 提示词与当前章节上下文注入", done: false },
+      { text: "实现会话 CRUD 与消息持久化", done: false },
+      { text: "实现 POST /chat/sessions/{id}/stream（meta → delta* → done）", done: false },
+      { text: "完成 T6 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T7",
+    title: "前端全局聊天",
+    phase: "前端 / AI",
+    status: "pending",
+    owner: "前端智能体",
+    deps: ["T6"],
+    deliverable: "ChatDock、ChatPanel、流式消息、历史会话与上下文发送。",
+    acceptance: "任意页面可打开聊天；流式与历史持久化正常；Mock 模式可完成问答。",
+    subtasks: [
+      { text: "实现 ChatDock 全局悬浮按钮", done: false },
+      { text: "实现 ChatPanel 右侧滑出对话面板", done: false },
+      { text: "实现流式打字效果与停止生成", done: false },
+      { text: "实现新会话、历史切换与删除", done: false },
+      { text: "发送消息时携带当前章节 / 知识点上下文", done: false },
+      { text: "刷新页面后历史消息仍可读取", done: false },
+      { text: "完成 T7 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T8",
+    title: "设置与 LLM 配置",
+    phase: "后端 + 前端",
+    status: "pending",
+    owner: "后端 + 前端智能体",
+    deps: ["T6"],
+    deliverable: "LLM 设置接口、设置页、Key 脱敏、连接测试、恢复默认。",
+    acceptance: "默认 DeepSeek；可切换任意 OpenAI 兼容地址 / Ollama；代码无写死供应商。",
+    subtasks: [
+      { text: "实现 GET / PUT / test / reset LLM 设置接口", done: false },
+      { text: "实现设置页：provider、base_url、model、api_key、temperature、max_tokens", done: false },
+      { text: "实现 API Key 脱敏显示与“留空不修改”逻辑", done: false },
+      { text: "实现测试连接按钮与结果反馈", done: false },
+      { text: "实现恢复默认 DeepSeek 配置", done: false },
+      { text: "全文检查无硬编码 Key / 无写死仅 DeepSeek 逻辑", done: false },
+      { text: "完成 T8 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T9",
+    title: "进度与笔记",
+    phase: "全栈",
+    status: "pending",
+    owner: "全栈智能体",
+    deps: ["T1"],
+    deliverable: "学习进度接口与 UI、章节百分比、笔记 CRUD 与持久化。",
+    acceptance: "标记完成后目录树显示状态；重启后进度和笔记不丢失。",
+    subtasks: [
+      { text: "实现进度 GET / PUT 接口与章节百分比", done: false },
+      { text: "实现知识点状态切换控件", done: false },
+      { text: "实现目录树完成状态展示", done: false },
+      { text: "实现笔记新增、编辑、删除接口与 UI", done: false },
+      { text: "验证刷新页面与重启后端后数据保留", done: false },
+      { text: "完成 T9 验收并更新 todo.html", done: false }
+    ]
+  },
+  {
+    id: "T10",
+    title: "联调、测试与验收",
+    phase: "测试 / 交付",
+    status: "pending",
+    owner: "测试智能体 + 全栈",
+    deps: ["T4", "T5", "T7", "T8", "T9"],
+    deliverable: "pytest 全绿、前端 build 无错误、生产单端口可访问、验收记录。",
+    acceptance: "PRD 第 7 节 10 条 + 03 文档 6.1 / 6.2 用例全部通过。",
+    subtasks: [
+      { text: "后端 pytest 全绿", done: false },
+      { text: "前端 TypeScript 构建无错误，npm run build 成功", done: false },
+      { text: "生产模式 FastAPI 托管 frontend/dist，单端口访问", done: false },
+      { text: "逐条完成 PRD 第 7 节 MVP 验收清单", done: false },
+      { text: "逐条完成 03 文档 6.1 / 6.2 测试用例", done: false },
+      { text: "检查前端无 scipy/numpy 依赖、无硬编码 Key", done: false },
+      { text: "更新 docs 中的实际启动说明与最终进度", done: false },
+      { text: "完成 T10 验收并更新 todo.html", done: false }
+    ]
+  }
+];
+
+/* ================= 以下为渲染逻辑，一般不需要修改 ================= */
+const STATUS_TEXT = {
+  completed: "已完成",
+  in_progress: "进行中",
+  pending: "待开始",
+  blocked: "受阻"
+};
+
+function pct(done, total) {
+  if (!total) return 0;
+  return Math.round((done / total) * 100);
+}
+
+function render() {
+  document.getElementById("phaseText").textContent = PROJECT.phase;
+  document.getElementById("lastUpdated").textContent = PROJECT.lastUpdated;
+  document.getElementById("devStatus").textContent = PROJECT.devStatus;
+  document.getElementById("nextAction").textContent = PROJECT.nextAction;
+
+  let totalSub = 0;
+  let doneSub = 0;
+  let doneTasks = 0;
+
+  const list = document.getElementById("taskList");
+  list.innerHTML = TASKS.map((task, idx) => {
+    const subTotal = task.subtasks.length;
+    const subDone = task.subtasks.filter(s => s.done).length;
+    totalSub += subTotal;
+    doneSub += subDone;
+    if (task.status === "completed") doneTasks += 1;
+    const taskPct = pct(subDone, subTotal);
+    const openClass = idx === 1 ? " open" : "";
+
+    const subtasks = task.subtasks.map(s => `
+      <li class="${s.done ? "done" : ""}">
+        <span class="check">${s.done ? "✓" : ""}</span>
+        <span class="text">${s.text}</span>
+      </li>`).join("");
+
+    return `
+      <article class="task ${task.status}${openClass}" data-idx="${idx}">
+        <div class="task-head" onclick="toggleTask(${idx})">
+          <div class="task-id">${task.id}</div>
+          <div>
+            <div class="task-title">${task.title}</div>
+            <div class="task-desc">${task.phase} · 负责：${task.owner}</div>
+          </div>
+          <div class="task-right">
+            <span class="badge ${task.status}">${STATUS_TEXT[task.status]}</span>
+            <div class="mini-track"><div class="mini-fill" style="width:${taskPct}%"></div></div>
+            <span class="chev">›</span>
+          </div>
+        </div>
+        <div class="task-body">
+          <div class="task-grid">
+            <div class="kv"><div class="k">交付物</div><div class="v">${task.deliverable}</div></div>
+            <div class="kv"><div class="k">验收标准</div><div class="v">${task.acceptance}</div></div>
+            <div class="kv"><div class="k">依赖</div><div class="v">${task.deps.length ? task.deps.join("、") : "无"}</div></div>
+            <div class="kv"><div class="k">子项进度</div><div class="v">${subDone} / ${subTotal}</div></div>
+          </div>
+          <ul class="subtasks">${subtasks}</ul>
+        </div>
+      </article>`;
+  }).join("");
+
+  const overall = pct(doneSub, totalSub);
+  document.getElementById("overallPercent").textContent = overall;
+  document.getElementById("overallBar").style.width = overall + "%";
+  document.getElementById("overallHint").textContent = `已完成 ${doneSub} / ${totalSub} 个子项`;
+  document.getElementById("doneTasks").textContent = doneTasks;
+  document.getElementById("totalTasks").textContent = TASKS.length;
+
+  document.getElementById("updateLog").innerHTML = UPDATE_LOG
+    .slice()
+    .reverse()
+    .map(item => `<tr><td>${item.date}</td><td>${item.text}</td></tr>`)
+    .join("");
+}
+
+function toggleTask(idx) {
+  const el = document.querySelector(`.task[data-idx="${idx}"]`);
+  if (el) el.classList.toggle("open");
+}
+
+render();
+</script>
+</body>
+</html>
