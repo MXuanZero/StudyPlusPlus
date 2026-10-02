@@ -24,7 +24,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 SESSION_ID_PREFIX = "sess_"
 MESSAGE_ID_PREFIX = "msg_"
-DEFAULT_SESSION_TITLE = "新对话"
+DEFAULT_SESSION_TITLE = "新会话"
 HISTORY_LIMIT = 40
 
 
@@ -150,6 +150,49 @@ def _delete_message(message_row_id: int) -> None:
     """Remove a message row that should not appear in history."""
     with get_connection() as conn:
         conn.execute("DELETE FROM chat_messages WHERE id = ?", (message_row_id,))
+
+
+def _update_session_title(session_id: str, title: str) -> None:
+    now = utc_now()
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE chat_sessions SET title = ?, updated_at = ? WHERE id = ?",
+            (title, now, session_id),
+        )
+
+
+def _fallback_session_title(user_content: str) -> str:
+    cleaned = " ".join(user_content.split())
+    if len(cleaned) <= 18:
+        return cleaned
+    return cleaned[:18].rstrip() + "…"
+
+
+async def _maybe_generate_session_title(
+    session_id: str,
+    session_row: Any,
+    user_content: str,
+    config: Any,
+) -> None:
+    """Generate a title from the first user message when it is still default."""
+
+    current_title = (session_row["title"] or "").strip()
+    if current_title and current_title != DEFAULT_SESSION_TITLE:
+        return
+
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM chat_messages WHERE session_id = ? AND role = 'user'",
+            (session_id,),
+        ).fetchone()
+    if row is None or int(row["n"]) != 1:
+        return
+
+    title = await llm.summarize_title(user_content, config)
+    if not title:
+        title = _fallback_session_title(user_content)
+    if title and title != current_title:
+        _update_session_title(session_id, title)
 
 
 def _touch_session(session_id: str, context: dict[str, Any] | None) -> None:
@@ -282,11 +325,14 @@ async def stream_message(session_id: str, payload: ChatStreamRequest) -> Streami
             ]
         }
     _insert_message(session_id, "user", user_content, user_meta)
-    history = _fetch_history(session_id)
 
     config, key_source = llm.resolve_llm_settings()
     mode = "live" if config.api_key else "mock"
 
+    # 第一个用户消息到达时自动生成会话标题；失败则用问题前 18 字兜底。
+    await _maybe_generate_session_title(session_id, session, user_content, config)
+
+    history = _fetch_history(session_id)
     assistant_meta = {"message_id": _new_id(MESSAGE_ID_PREFIX), "mode": mode}
     assistant_row_id = _insert_message(session_id, "assistant", "", assistant_meta)
     messages = prompt.build_messages(history, context=context)

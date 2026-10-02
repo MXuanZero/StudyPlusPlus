@@ -510,6 +510,81 @@ def _extract_sse_data(line: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Session title generation
+# ---------------------------------------------------------------------------
+
+TITLE_SYSTEM_PROMPT = (
+    "你是会话命名助手。请根据用户的问题，用不超过 12 个汉字概括主题，"
+    "作为会话标题。只输出标题本身，不要引号、不要标点、不要解释。"
+)
+
+
+def clean_generated_title(text: str | None) -> str | None:
+    """Normalize a title returned by an LLM."""
+
+    if not text:
+        return None
+    cleaned = str(text).strip().splitlines()[0].strip()
+    cleaned = cleaned.strip(' \t\r\n"\'“”‘’`#*-')
+    cleaned = re.sub(r"[。！？，、；：.,!?;:]+$", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    if len(cleaned) > 24:
+        cleaned = cleaned[:24].rstrip()
+    return cleaned or None
+
+
+async def summarize_title(
+    user_message: str,
+    config: LLMSettings | None = None,
+    client: httpx.AsyncClient | None = None,
+) -> str | None:
+    """Ask the configured LLM for a short session title.
+
+    Returns ``None`` in mock mode or on any upstream failure; callers should
+    fall back to a locally truncated title.
+    """
+
+    config = config or resolve_llm_settings()[0]
+    if not config.api_key:
+        return None
+
+    message = str(user_message or "").strip()[:1000]
+    if not message:
+        return None
+
+    owns_client = client is None
+    if client is None:
+        client = _build_async_client(min(_timeout_seconds(), 20.0))
+
+    try:
+        url = chat_completions_url(config.base_url)
+        response = await client.post(
+            url,
+            json={
+                "model": config.model,
+                "messages": [
+                    {"role": "system", "content": TITLE_SYSTEM_PROMPT},
+                    {"role": "user", "content": message},
+                ],
+                "temperature": 0.2,
+                "max_tokens": 32,
+                "stream": False,
+            },
+            headers=_headers(config),
+        )
+        if response.status_code >= 400:
+            return None
+        data = response.json()
+        content = data["choices"][0]["message"]["content"]
+        return clean_generated_title(content)
+    except Exception:
+        return None
+    finally:
+        if owns_client:
+            await client.aclose()
+
+
+# ---------------------------------------------------------------------------
 # Connection test
 # ---------------------------------------------------------------------------
 
