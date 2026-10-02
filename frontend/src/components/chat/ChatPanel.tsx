@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import type { ChatMessage, ChatQuote } from '../../api/types'
 import { useChatStore } from '../../store/chatStore'
 import { usePageContext } from '../../hooks/usePageContext'
@@ -63,6 +64,7 @@ interface ChatPanelProps {
 
 export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
   const inline = variant === 'inline'
+  const location = useLocation()
   const open = useChatStore((state) => state.open)
   const closePanel = useChatStore((state) => state.closePanel)
   const sessions = useChatStore((state) => state.sessions)
@@ -160,6 +162,10 @@ export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
     setInput('')
     void sendMessage(content, pageContext)
   }
+
+  // 双保险：/learn 页面禁止 drawer 抽屉；知识点页面的 AI 入口统一走 /assistant 分屏。
+  const normalizedPath = location.pathname.replace(/\/+$/, '')
+  if (!inline && normalizedPath.startsWith('/learn/')) return null
 
   return (
     <aside
