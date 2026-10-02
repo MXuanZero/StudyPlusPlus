@@ -11,8 +11,10 @@ import { NotesDrawer } from '../components/notes/NotesDrawer'
 import { ProgressControl } from '../components/progress/ProgressControl'
 import { Button } from '../components/ui/Button'
 import { CenteredSpinner } from '../components/ui/Spinner'
+import { useChatStore } from '../store/chatStore'
 import { useLearningStore } from '../store/learningStore'
 import { useProgressStore } from '../store/progressStore'
+import { listAnnotations, type Annotation } from '../utils/annotations'
 
 function StateBlock({
   title,
@@ -96,6 +98,7 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   const [topic, setTopic] = useState<TopicDetail | null>(null)
   const [topicLoading, setTopicLoading] = useState(false)
   const [topicError, setTopicError] = useState<{ code: string; message: string } | null>(null)
+  const [annotations, setAnnotations] = useState<Annotation[]>([])
 
   useEffect(() => {
     catalogWidthRef.current = catalogWidth
@@ -154,6 +157,18 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
     }
   }, [targetTopicId])
 
+  useEffect(() => {
+    const topicId = topic?.id
+    if (!topicId) {
+      setAnnotations([])
+      return
+    }
+    const reload = () => setAnnotations(listAnnotations(topicId))
+    reload()
+    window.addEventListener('spp:annotations-changed', reload)
+    return () => window.removeEventListener('spp:annotations-changed', reload)
+  }, [topic?.id])
+
   if (!loaded && loading) return <CenteredSpinner label="课程加载中…" />
 
   if (error && !curriculum) {
@@ -181,6 +196,17 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   }
 
   const { book, chapter } = chapterInfo
+
+  const handleAnnotationClick = (annotation: Annotation) => {
+    if (!topic) return
+    const target = topicPath(chapter.id, topic.id, true)
+    if (annotation.session_id) {
+      void useChatStore.getState().selectSession(annotation.session_id)
+      navigate(`${target}?session=${encodeURIComponent(annotation.session_id)}`)
+    } else {
+      navigate(target)
+    }
+  }
 
   if (chapter.status !== 'available' || chapter.topics.length === 0) {
     return (
@@ -337,7 +363,12 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
                 </section>
               ) : null}
 
-              <MarkdownRenderer markdown={topic.body_markdown} widgets={topic.widgets} />
+              <MarkdownRenderer
+                markdown={topic.body_markdown}
+                widgets={topic.widgets}
+                annotations={annotations}
+                onAnnotationClick={handleAnnotationClick}
+              />
 
               <nav className="topic-nav" aria-label="知识点导航">
                 {topic.prev_topic ? (

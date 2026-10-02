@@ -829,3 +829,16 @@ body.is-col-resizing .catalog-resizer::after { background: var(--accent); }
   letter-spacing: 0.04em;
 }
 .chat-message.user .quote-tag { background: #e0e7ff; color: #4338ca; }
+
+/* ---------- AI annotation highlights in course content ---------- */
+mark.annotation-highlight {
+  background: #fef08a;
+  color: inherit;
+  padding: 0 1px;
+  border-bottom: 1px solid #f59e0b;
+  border-radius: 2px;
+  cursor: pointer;
+}
+mark.annotation-highlight:hover {
+  background: #fde047;
+}

@@ -9,6 +9,7 @@ import {
 import type { ChatContext, ChatMessage, ChatQuote, ChatSession } from '../api/types'
 import { useAppStore } from './appStore'
 import { makeId } from '../utils/format'
+import { attachSessionToAnnotations, removeAnnotation, removeAnnotationsBySession } from '../utils/annotations'
 
 const PENDING_QUOTES_KEY = 'spp.chat.pendingQuotes'
 const MAX_PENDING_QUOTES = 5
@@ -27,6 +28,7 @@ function sanitizeQuote(value: unknown): ChatQuote | null {
     source: typeof record.source === 'string' ? record.source : undefined,
     topic_id: typeof record.topic_id === 'string' ? record.topic_id : undefined,
     topic_title: typeof record.topic_title === 'string' ? record.topic_title : undefined,
+    annotation_id: typeof record.annotation_id === 'string' ? record.annotation_id : undefined,
   }
 }
 
@@ -51,12 +53,13 @@ function loadPendingQuotes(): ChatQuote[] {
 function persistPendingQuotes(quotes: ChatQuote[]): void {
   if (typeof window === 'undefined') return
   try {
-    const slim = quotes.map(({ id, text, source, topic_id, topic_title }) => ({
+    const slim = quotes.map(({ id, text, source, topic_id, topic_title, annotation_id }) => ({
       id,
       text,
       source,
       topic_id,
       topic_title,
+      annotation_id,
     }))
     window.localStorage.setItem(PENDING_QUOTES_KEY, JSON.stringify(slim))
   } catch {
@@ -93,7 +96,7 @@ interface ChatState {
   clearError: () => void
   addQuote: (quote: ChatQuote) => QuoteAddResult
   removeQuote: (id: string) => void
-  clearQuotes: () => void
+  clearQuotes: (options?: { keepAnnotations?: boolean }) => void
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -167,6 +170,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     try {
       await deleteChatSession(sessionId)
+      removeAnnotationsBySession(sessionId)
     } catch (error) {
       set({ sessions: previous })
       useAppStore.getState().pushToast(error instanceof Error ? error.message : '删除会话失败', 'error')
@@ -185,6 +189,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       useAppStore.getState().pushToast(error instanceof Error ? error.message : '创建会话失败', 'error')
       return
     }
+
+    const annotationIds = quotes
+      .map((quote) => quote.annotation_id)
+      .filter((item): item is string => Boolean(item))
+    if (annotationIds.length) attachSessionToAnnotations(annotationIds, sessionId)
 
     const userMessage: ChatMessage = {
       id: makeId('local_user'),
@@ -255,7 +264,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     )
 
     // 后端已确认收到用户消息（meta 事件）后，才让“待发送引用”出队。
-    if (delivered) get().clearQuotes()
+    if (delivered) get().clearQuotes({ keepAnnotations: true })
     if (get().streaming) set({ streaming: false, abortController: null })
     void get().loadSessions()
   },
@@ -293,12 +302,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   removeQuote: (id) => {
+    const target = get().pendingQuotes.find((item) => item.id === id)
+    if (target?.annotation_id) removeAnnotation(target.annotation_id)
     const next = get().pendingQuotes.filter((item) => item.id !== id)
     set({ pendingQuotes: next })
     persistPendingQuotes(next)
   },
 
-  clearQuotes: () => {
+  clearQuotes: (options) => {
+    if (!options?.keepAnnotations) {
+      for (const quote of get().pendingQuotes) {
+        if (quote.annotation_id) removeAnnotation(quote.annotation_id)
+      }
+    }
     set({ pendingQuotes: [] })
     persistPendingQuotes([])
   },

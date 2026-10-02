@@ -4,6 +4,8 @@ import { usePageContext } from '../../hooks/usePageContext'
 import { useAppStore } from '../../store/appStore'
 import { useChatStore } from '../../store/chatStore'
 import { makeId } from '../../utils/format'
+import { addAnnotation } from '../../utils/annotations'
+import { getRangeOffsets } from '../../utils/annotationHighlight'
 
 const MAX_QUOTE_LENGTH = 5000
 
@@ -91,19 +93,52 @@ export function QuoteSelectionHandler() {
       pushToast(`选中内容超过 ${MAX_QUOTE_LENGTH} 字符，请缩短后再引用`, 'error')
       return
     }
+
+    // 记录选区在正文中的字符范围，用于后续给原文加划线。
+    let start = -1
+    let end = -1
+    const selection = window.getSelection()
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0)
+      const anchor = selection.anchorNode
+      const element = anchor instanceof Element ? anchor : anchor?.parentElement
+      const container = element?.closest('[data-quotable]') as HTMLElement | null
+      const offsets = container ? getRangeOffsets(container, range) : null
+      if (offsets) {
+        start = offsets.start
+        end = offsets.end
+      }
+    }
+
     const source = [pageContext.book, pageContext.chapter, pageContext.topic]
       .filter(Boolean)
       .join(' / ')
+    const quoteId = makeId('quote')
+    const annotationId = makeId('anno')
     const result = addQuote({
-      id: makeId('quote'),
+      id: quoteId,
       text,
       source: source || undefined,
       topic_id: pageContext.topic_id,
       topic_title: pageContext.topic,
+      annotation_id: annotationId,
     })
-    if (result === 'added') pushToast('已加入待发送引用', 'success')
-    else if (result === 'duplicate') pushToast('这条引用已在待发送列表中', 'info')
-    else pushToast('待发送引用最多 5 条，请先删除或发送', 'error')
+
+    if (result === 'added') {
+      addAnnotation({
+        id: annotationId,
+        topic_id: pageContext.topic_id ?? pageContext.chapter_id ?? 'unknown',
+        chapter_id: pageContext.chapter_id ?? '',
+        text,
+        start,
+        end,
+      })
+      pushToast('已加入待发送引用，正文已划线', 'success')
+    } else if (result === 'duplicate') {
+      pushToast('这条引用已在待发送列表中', 'info')
+    } else {
+      pushToast('待发送引用最多 5 条，请先删除或发送', 'error')
+    }
 
     // 知识点页面：点击引用后立即进入 AI 分屏页面，引用卡片会直接出现在输入框上方。
     const normalizedPath = location.pathname.replace(/\/+$/, '')

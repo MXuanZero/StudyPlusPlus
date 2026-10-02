@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import type { ChatMessage, ChatQuote } from '../../api/types'
 import { useChatStore } from '../../store/chatStore'
 import { usePageContext } from '../../hooks/usePageContext'
@@ -66,6 +66,7 @@ interface ChatPanelProps {
 export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
   const inline = variant === 'inline'
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const open = useChatStore((state) => state.open)
   const closePanel = useChatStore((state) => state.closePanel)
   const sessions = useChatStore((state) => state.sessions)
@@ -116,6 +117,12 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
   useEffect(() => {
     if (open || inline) void loadSessions()
   }, [inline, loadSessions, open])
+
+  useEffect(() => {
+    if (!inline) return
+    const sessionId = searchParams.get('session')
+    if (sessionId) void selectSession(sessionId)
+  }, [inline, searchParams, selectSession])
 
   useEffect(() => {
     const host = messagesRef.current
@@ -333,7 +340,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
           <div className="pending-quotes">
             <div className="pending-quotes-head">
               <span>待发送引用 {pendingQuotes.length}/5</span>
-              <button type="button" className="btn btn-sm btn-ghost" onClick={clearQuotes}>
+              <button type="button" className="btn btn-sm btn-ghost" onClick={() => clearQuotes()}>
                 全部清空
               </button>
             </div>

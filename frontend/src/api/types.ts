@@ -145,6 +145,8 @@ export interface ChatQuote {
   source?: string
   topic_id?: string
   topic_title?: string
+  /** 对应正文划线标注 id；发送后据此把标注关联到会话。 */
+  annotation_id?: string
 }
 
 export interface ChatSession {
