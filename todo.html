@@ -200,13 +200,14 @@
    ========================================================= */
 const PROJECT = {
   name: "StudyPlusPlus",
-  phase: "T2/T4/T6 进行中；T3 已完成",
+  phase: "T2/T3/T6 已完成；T4/T7 前端进行中",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "完成 T2/T4/T7 前端，Lead 继续 T9/T10"
+  nextAction: "等待 T4/T5/T7 前端完成，Lead 继续 T8/T9/T10"
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T2 完成：两卷课程目录、ch05 五节 Markdown、内容加载器与课程 API 完成；后端测试 66 passed（ade333a / 3c23ed8 / 10e8f5c / b8bb4c5 / 095aeb2 / 559c455）。" },
   { date: "2026-10-02", text: "T6+T8 后端完成：LLM 客户端、Mock、Key 脱敏、设置接口、SSE 会话持久化；66 个后端测试通过（e88c34b/2797183/5b84177）。" },
   { date: "2026-10-02", text: "T3 完成：二阶仿真、指标、compare/presets API 与 30 个 pytest 全部通过；commit bd2012b/7a3c37d/96d164c。" },
   { date: "2026-10-02", text: "T1 完成：FastAPI 骨架、健康检查、SQLite 表结构、React/Vite 前端骨架、Vite 代理与 CORS 均已就绪。" },
@@ -275,18 +276,18 @@ const TASKS = [
     id: "T2",
     title: "课程数据与内容骨架",
     phase: "课程内容",
-    status: "pending",
+    status: "completed",
     owner: "内容智能体",
     deps: ["T1"],
     deliverable: "curriculum.json、第 5 章 5 个 Markdown 文件、content_loader 与课程 API。",
     acceptance: "目录与 Reference 一致；ch05-03 接口返回正文、widgets、prev/next。",
     subtasks: [
-      { text: "生成 curriculum.json：两卷完整目录，仅 ch05 标为 available", done: false },
-      { text: "编写 ch05 五个知识点 Markdown：05-01 至 05-05", done: false },
-      { text: "实现 content_loader.py：解析 Frontmatter、目录与 topic", done: false },
-      { text: "实现 GET /api/v1/curriculum 与 GET /api/v1/topics/{topic_id}", done: false },
-      { text: "确保每节包含学习目标、正文、widget 占位、折叠推导", done: false },
-      { text: "完成 T2 验收并更新 todo.html", done: false }
+      { text: "生成 curriculum.json：两卷完整目录，仅 ch05 标为 available", done: true },
+      { text: "编写 ch05 五个知识点 Markdown：05-01 至 05-05", done: true },
+      { text: "实现 content_loader.py：解析 Frontmatter、目录与 topic", done: true },
+      { text: "实现 GET /api/v1/curriculum 与 GET /api/v1/topics/{topic_id}", done: true },
+      { text: "确保每节包含学习目标、正文、widget 占位、折叠推导", done: true },
+      { text: "完成 T2 验收并更新 todo.html", done: true }
     ]
   },
   {
