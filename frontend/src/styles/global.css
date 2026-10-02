@@ -50,16 +50,6 @@ h3 { font-size: 18px; }
 
 /* ---------- App shell ---------- */
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.topbar {
-  position: sticky; top: 0; z-index: 30;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: saturate(180%) blur(8px);
-  border-bottom: 1px solid var(--border);
-}
-.topbar-inner {
-  max-width: 1600px; margin: 0 auto; padding: 0 28px;
-  height: 58px; display: flex; align-items: center; gap: 28px;
-}
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: var(--text-strong); }
 .brand:hover { text-decoration: none; }
 .brand-mark {
@@ -67,12 +57,6 @@ h3 { font-size: 18px; }
   background: linear-gradient(135deg, #6366f1, #4338ca);
   color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 800;
 }
-.topnav { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-.topnav a {
-  color: var(--muted); padding: 7px 12px; border-radius: 8px; font-size: 14.5px;
-}
-.topnav a:hover { background: var(--panel); color: var(--text-strong); text-decoration: none; }
-.topnav a.active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .source-badge {
   margin-left: 12px; font-size: 12px; color: var(--warning);
   background: var(--warning-soft); border: 1px solid #fde68a;
@@ -160,19 +144,25 @@ h3 { font-size: 18px; }
 .chapter-row .chapter-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- Learn layout ---------- */
-.learn-layout { display: flex; align-items: stretch; min-height: calc(100vh - 58px); }
+.learn-layout { display: flex; align-items: stretch; min-height: 100vh; }
 .catalog {
   width: var(--catalog-width); flex: 0 0 var(--catalog-width);
   border-right: 1px solid var(--border); background: var(--panel-soft);
-  height: calc(100vh - 58px); position: sticky; top: 58px;
+  height: 100vh; position: sticky; top: 0;
   display: flex; flex-direction: column;
 }
 .catalog.collapsed { width: 52px; flex-basis: 52px; }
 .catalog-head {
-  padding: 14px 14px 10px; display: flex; align-items: center; gap: 8px;
+  padding: 12px 12px 10px; display: flex; align-items: center; gap: 8px;
   border-bottom: 1px solid var(--border);
 }
-.catalog-head .title { font-weight: 700; font-size: 14px; color: var(--text-strong); flex: 1; }
+.catalog-brand { flex: 1; min-width: 0; font-size: 15px; gap: 8px; }
+.catalog-brand .brand-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-brand .brand-mark { width: 26px; height: 26px; font-size: 13px; border-radius: 7px; }
+.catalog-section-title {
+  padding: 10px 16px 2px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint);
+}
 .catalog-body { overflow-y: auto; padding: 10px 8px 24px; flex: 1; }
 .catalog-book { margin-bottom: 12px; }
 .catalog-book-title {
@@ -525,6 +515,16 @@ select.form-control { height: 38px; }
 .catalog-topic.learning .dot { background: #f59e0b; }
 
 .home-progress { margin-top: 34px; }
+.home-settings { margin-top: 34px; }
+.home-settings-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 20px 24px;
+}
+.home-settings-card h3 { margin: 0 0 4px; font-size: 17px; }
+.home-settings-card p { margin: 0; color: var(--muted); font-size: 14px; }
+@media (max-width: 760px) {
+  .home-settings-card { flex-direction: column; align-items: flex-start; }
+}
 .home-progress-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
 .stat-card { padding: 18px 20px; }
 .stat-card .stat-label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }

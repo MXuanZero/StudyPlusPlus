@@ -136,7 +136,12 @@ export function ChapterPage() {
     <div className="learn-layout">
       <aside className={`catalog ${collapsed ? 'collapsed' : ''}`}>
         <div className="catalog-head">
-          {!collapsed ? <span className="title">课程目录</span> : null}
+          {!collapsed ? (
+            <Link to="/" className="brand catalog-brand" title="返回首页">
+              <span className="brand-mark">S+</span>
+              <span className="brand-text">StudyPlusPlus</span>
+            </Link>
+          ) : null}
           <button
             type="button"
             className="icon-btn"
@@ -146,6 +151,7 @@ export function ChapterPage() {
             {collapsed ? '»' : '«'}
           </button>
         </div>
+        {!collapsed ? <div className="catalog-section-title">课程目录</div> : null}
         <CatalogTree collapsed={collapsed} />
       </aside>
 

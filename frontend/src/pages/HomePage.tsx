@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import type { BookSummary, ChapterSummary } from '../api/types'
 import { CenteredSpinner } from '../components/ui/Spinner'
+import { useAppStore } from '../store/appStore'
 import { useLearningStore } from '../store/learningStore'
 import { useProgressStore } from '../store/progressStore'
 import { chapterHeading } from '../utils/chapter'
@@ -51,6 +52,7 @@ export function HomePage() {
   const chapterProgressMap = useProgressStore((state) => state.chapterProgress)
   const loadProgress = useProgressStore((state) => state.loadProgress)
   const loadChapterProgress = useProgressStore((state) => state.loadChapterProgress)
+  const dataSource = useAppStore((state) => state.dataSource)
 
   useEffect(() => {
     void loadCurriculum()
@@ -108,6 +110,14 @@ export function HomePage() {
             模型设置
           </Link>
         </div>
+        {dataSource === 'mock' ? (
+          <div className="status-banner mock" style={{ maxWidth: 560, marginTop: 20 }}>
+            <div>
+              <div className="status-title">开发 Mock 数据</div>
+              后端接口暂不可用，课程与计算使用了本地固定数据；配置后端后会自动切换为真实接口。
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="home-progress">
@@ -150,6 +160,18 @@ export function HomePage() {
               </Link>
             ) : null}
           </div>
+        </div>
+      </section>
+
+      <section className="home-settings">
+        <div className="card home-settings-card">
+          <div>
+            <h3>模型设置</h3>
+            <p>配置 DeepSeek / OpenAI / Ollama 或其他 OpenAI 兼容服务，查看当前 live / mock 状态。</p>
+          </div>
+          <Link className="btn btn-primary" to="/settings">
+            打开模型设置
+          </Link>
         </div>
       </section>
 

@@ -1,27 +1,10 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { QuoteSelectionHandler } from '../chat/QuoteSelectionHandler'
-import { useAppStore } from '../../store/appStore'
 
+/** 无顶栏布局：页面内容 + 全局引用选择器。 */
 export function AppLayout() {
-  const dataSource = useAppStore((state) => state.dataSource)
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="topbar-inner">
-          <NavLink to="/" className="brand">
-            <span className="brand-mark">S+</span>
-            StudyPlusPlus
-          </NavLink>
-          <nav className="topnav">
-            <NavLink to="/" end>
-              首页
-            </NavLink>
-            <NavLink to="/learn/ch05">二阶系统</NavLink>
-            <NavLink to="/settings">设置</NavLink>
-            {dataSource === 'mock' ? <span className="source-badge">开发 Mock 数据</span> : null}
-          </nav>
-        </div>
-      </header>
       <main className="page-main">
         <Outlet />
       </main>
