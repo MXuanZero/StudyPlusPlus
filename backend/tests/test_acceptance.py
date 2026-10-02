@@ -354,22 +354,20 @@ def test_compute_compare_and_presets(client: TestClient) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_curriculum_only_ch05_is_available(client: TestClient) -> None:
+def test_curriculum_expected_chapters_are_available(client: TestClient) -> None:
     response = client.get("/api/v1/curriculum")
     assert response.status_code == 200
     books = response.json()["books"]
     assert [book["id"] for book in books] == ["vol1", "vol2"]
 
+    available_chapters = {"ch04", "ch05", "ch06"}
     for book in books:
         assert book["chapters"], book["id"]
         for chapter in book["chapters"]:
             chapter_available = chapter["status"] == "available"
-            if chapter["id"] != "ch05":
-                assert not chapter_available, f"{chapter['id']} should be planned"
-            else:
-                assert chapter_available
+            assert chapter_available is (chapter["id"] in available_chapters)
             for topic in chapter.get("topics", []):
-                if chapter["id"] == "ch05":
+                if chapter["id"] in available_chapters:
                     assert topic["status"] == "available"
                 else:
                     assert topic["status"] == "planned"
@@ -405,10 +403,15 @@ def test_topic_detail_navigation_and_content_markers(client: TestClient) -> None
     assert isinstance(payload["widgets"], list) and payload["widgets"]
     assert all({"id", "type"} <= set(widget) for widget in payload["widgets"])
 
-    first = client.get("/api/v1/topics/ch05-01").json()
-    last = client.get("/api/v1/topics/ch05-05").json()
-    assert first["prev_topic"] is None and first["next_topic"]["id"] == "ch05-02"
-    assert last["next_topic"] is None and last["prev_topic"]["id"] == "ch05-04"
+    first = client.get("/api/v1/topics/ch04-01").json()
+    last = client.get("/api/v1/topics/ch06-04").json()
+    assert first["prev_topic"] is None and first["next_topic"]["id"] == "ch04-02"
+    assert last["next_topic"] is None and last["prev_topic"]["id"] == "ch06-03"
+
+    ch05_first = client.get("/api/v1/topics/ch05-01").json()
+    ch05_last = client.get("/api/v1/topics/ch05-05").json()
+    assert ch05_first["prev_topic"]["id"] == "ch04-04"
+    assert ch05_last["next_topic"]["id"] == "ch06-01"
 
 
 def test_planned_and_unknown_topics_are_rejected(client: TestClient) -> None:

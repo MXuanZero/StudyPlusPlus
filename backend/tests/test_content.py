@@ -44,7 +44,7 @@ def _ch05_topics(curriculum: dict) -> list[dict]:
     raise AssertionError("ch05 not found")
 
 
-def test_curriculum_has_two_volumes_and_only_ch05_available(client: TestClient):
+def test_curriculum_has_two_volumes_and_expected_chapters_available(client: TestClient):
     response = client.get("/api/v1/curriculum")
     assert response.status_code == 200
     data = response.json()
@@ -52,20 +52,27 @@ def test_curriculum_has_two_volumes_and_only_ch05_available(client: TestClient):
 
     chapters = [chapter for book in data["books"] for chapter in book["chapters"]]
     available_chapters = [chapter for chapter in chapters if chapter["status"] == "available"]
-    assert [chapter["id"] for chapter in available_chapters] == ["ch05"]
+    assert [chapter["id"] for chapter in available_chapters] == ["ch04", "ch05", "ch06"]
 
     topics = [topic for chapter in chapters for topic in chapter["topics"]]
     available_topics = [topic for topic in topics if topic["status"] == "available"]
     assert [topic["id"] for topic in available_topics] == [
+        "ch04-01",
+        "ch04-02",
+        "ch04-03",
+        "ch04-04",
         "ch05-01",
         "ch05-02",
         "ch05-03",
         "ch05-04",
         "ch05-05",
+        "ch06-01",
+        "ch06-02",
+        "ch06-03",
+        "ch06-04",
     ]
-    assert all(topic["status"] == "planned" for topic in topics if topic["id"] not in {
-        "ch05-01", "ch05-02", "ch05-03", "ch05-04", "ch05-05"
-    })
+    available_ids = {topic["id"] for topic in available_topics}
+    assert all(topic["status"] == "planned" for topic in topics if topic["id"] not in available_ids)
 
 
 def test_curriculum_chapter_titles_follow_reference():
@@ -121,13 +128,18 @@ def test_all_ch05_topics_have_body_and_widget_placeholder(client: TestClient):
 
 
 def test_topic_navigation_edges(client: TestClient):
-    first = client.get("/api/v1/topics/ch05-01").json()
+    first = client.get("/api/v1/topics/ch04-01").json()
     assert first["prev_topic"] is None
-    assert first["next_topic"] == {"id": "ch05-02", "title": "二阶系统对初始状态的响应（零输入响应）"}
+    assert first["next_topic"] == {"id": "ch04-02", "title": "4.2 一阶系统的时域响应"}
 
-    last = client.get("/api/v1/topics/ch05-05").json()
-    assert last["prev_topic"] == {"id": "ch05-04", "title": "二阶系统性能指标分析"}
+    last = client.get("/api/v1/topics/ch06-04").json()
+    assert last["prev_topic"] == {"id": "ch06-03", "title": "6.3 稳定性与状态空间方程"}
     assert last["next_topic"] is None
+
+    ch05_first = client.get("/api/v1/topics/ch05-01").json()
+    assert ch05_first["prev_topic"] == {"id": "ch04-04", "title": "4.4 本章要点总结"}
+    ch05_last = client.get("/api/v1/topics/ch05-05").json()
+    assert ch05_last["next_topic"] == {"id": "ch06-01", "title": "6.1 系统稳定性的定义"}
 
 
 def test_planned_topic_returns_404(client: TestClient):
