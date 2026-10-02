@@ -57,3 +57,24 @@
 7. 每完成一个任务或子项，必须同步更新根目录 `todo.html` 中的 `status`、`subtasks[].done` 和 `UPDATE_LOG`。
 8. 每次提交 Git 之前，必须验证受影响的代码；每个任务结束时至少有一个对应 Git commit。
 9. `todo.html` 由 Lead 统一维护，子智能体不要并发修改；完成任务后向 Lead 汇报改动文件、验证结果与 commit hash。
+
+---
+
+## 十、快速启动
+
+```bash
+cd /home/mxuan/WorkSpace/StudyPlusPlus
+
+# 生产模式：自动处理依赖、按需构建前端，单端口访问
+./start.sh
+
+# 开发模式：FastAPI --reload + Vite dev server
+./start.sh --dev
+
+# 其他
+./start.sh --port 9000     # 指定后端端口
+./start.sh --no-build      # 跳过前端构建
+./start.sh --help          # 查看帮助
+```
+
+默认访问 `http://127.0.0.1:8000`。未配置 LLM API Key 时，AI 助手自动使用 Mock 模式。

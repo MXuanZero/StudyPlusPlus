@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "新增 start.sh 一键启动脚本：默认生产模式按需构建并单端口启动，--dev 启动 FastAPI reload + Vite；已验证生产与开发模式均正常。" },
   { date: "2026-10-02", text: "T10 自动化验收通过：97 tests passed；前端 build 通过；生产单端口 smoke 69/69；P1–P4 已修复（b1c3593/87eb81a/8bd1811/b234a96，报告 fa913af）。剩余人工浏览器复核。" },
   { date: "2026-10-02", text: "T10 启动：Lead 已完成生产单端口 smoke（SPA/健康/课程/计算/设置/进度/聊天 Mock SSE 均正常）；qa-dev 进行独立验收。" },
   { date: "2026-10-02", text: "T2 完成：两卷课程目录、ch05 五节 Markdown、内容加载器与课程 API 完成；后端测试 66 passed（ade333a / 3c23ed8 / 10e8f5c / b8bb4c5 / 095aeb2 / 559c455）。" },
@@ -445,6 +446,7 @@ const TASKS = [
       { text: "浏览器复核白色简洁风格、KaTeX 公式渲染、桌面端布局", done: false },
       { text: "检查前端无 scipy/numpy 依赖、无硬编码 Key（QA 已通过）", done: true },
       { text: "更新 docs 中的实际启动说明、验收报告与最终进度", done: true },
+      { text: "提供一键启动脚本 start.sh（生产 / 开发模式，自动依赖与构建）", done: true },
       { text: "人工浏览器复核通过后，将 T10 标记为完成", done: false }
     ]
   }
