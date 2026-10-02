@@ -3,6 +3,7 @@ import type { ChatMessage, ChatQuote } from '../../api/types'
 import { useChatStore } from '../../store/chatStore'
 import { usePageContext } from '../../hooks/usePageContext'
 import { Button } from '../ui/Button'
+import { ChatMarkdown } from './ChatMarkdown'
 
 const SUGGESTIONS = [
   '为什么欠阻尼系统会振荡？',
@@ -159,7 +160,7 @@ export function ChatPanel() {
           return (
             <div className={`chat-message ${message.role}`} key={message.id ?? `${message.role}-${index}`}>
               <span className="role">{message.role === 'user' ? '我' : 'AI 助教'}</span>
-              <div className="chat-bubble">
+              <div className={`chat-bubble${message.role === 'assistant' ? ' has-markdown' : ''}`}>
                 {quotes.length ? (
                   <div className="message-quotes">
                     {quotes.map((quote, quoteIndex) => (
@@ -175,7 +176,15 @@ export function ChatPanel() {
                     ))}
                   </div>
                 ) : null}
-                {message.content || (isStreamingBubble ? '' : '…')}
+                {message.role === 'assistant' ? (
+                  message.content ? (
+                    <ChatMarkdown content={message.content} />
+                  ) : isStreamingBubble ? null : (
+                    '…'
+                  )
+                ) : (
+                  message.content
+                )}
                 {isStreamingBubble ? <span className="chat-cursor" /> : null}
               </div>
             </div>
