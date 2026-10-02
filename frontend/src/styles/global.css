@@ -751,3 +751,26 @@ body.is-col-resizing * { user-select: none !important; }
   .lab-body, .lab-grid-2 { grid-template-columns: minmax(0, 1fr); }
   .lab-controls { border-right: 0; border-bottom: 1px solid var(--border); }
 }
+
+/* ---------- Editable system prompt ---------- */
+.settings-card-head { display: flex; align-items: center; gap: 10px; }
+.settings-card-head h2 { margin: 0; }
+.prompt-editor {
+  width: 100%;
+  min-height: 280px;
+  resize: vertical;
+  font-family: var(--font);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.prompt-default {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--muted);
+}

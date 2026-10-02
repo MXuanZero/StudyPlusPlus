@@ -55,3 +55,21 @@ export function testLLMSettings(): Promise<LLMTestResult> {
 export function resetLLMSettings(): Promise<LLMSettings> {
   return apiPost<LLMSettings>('/settings/llm/reset')
 }
+
+export interface SystemPromptSettings {
+  system_prompt: string
+  default_system_prompt: string
+  is_custom: boolean
+}
+
+export function getSystemPromptSettings(): Promise<SystemPromptSettings> {
+  return apiGet<SystemPromptSettings>('/settings/prompt')
+}
+
+export function updateSystemPrompt(systemPrompt: string): Promise<SystemPromptSettings> {
+  return apiPut<SystemPromptSettings>('/settings/prompt', { system_prompt: systemPrompt })
+}
+
+export function resetSystemPrompt(): Promise<SystemPromptSettings> {
+  return apiPost<SystemPromptSettings>('/settings/prompt/reset')
+}

@@ -2,14 +2,18 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getLLMSettings,
+  getSystemPromptSettings,
   resetLLMSettings,
+  resetSystemPrompt,
   testLLMSettings,
   updateLLMSettings,
+  updateSystemPrompt,
   type KeySource,
   type LLMProvider,
   type LLMSettings,
   type LLMSettingsUpdate,
   type LLMTestResult,
+  type SystemPromptSettings,
 } from '../api/settings'
 import { useAppStore } from '../store/appStore'
 import { Button } from '../components/ui/Button'
@@ -89,6 +93,12 @@ export function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<LLMTestResult | null>(null)
   const [savedAt, setSavedAt] = useState<string | null>(null)
+  const [promptSettings, setPromptSettings] = useState<SystemPromptSettings | null>(null)
+  const [promptDraft, setPromptDraft] = useState('')
+  const [promptLoading, setPromptLoading] = useState(true)
+  const [promptSaving, setPromptSaving] = useState(false)
+  const [promptResetting, setPromptResetting] = useState(false)
+  const [promptError, setPromptError] = useState<string | null>(null)
 
   const applySettings = (next: LLMSettings) => {
     setSettings(next)
@@ -114,6 +124,27 @@ export function SettingsPage() {
     }
   }, [])
 
+  useEffect(() => {
+    let active = true
+    setPromptLoading(true)
+    setPromptError(null)
+    getSystemPromptSettings()
+      .then((data) => {
+        if (!active) return
+        setPromptSettings(data)
+        setPromptDraft(data.system_prompt)
+      })
+      .catch((err: unknown) => {
+        if (active) setPromptError(err instanceof Error ? err.message : '读取系统提示词失败')
+      })
+      .finally(() => {
+        if (active) setPromptLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
   const maskedKey = settings?.api_key_masked || settings?.masked_api_key || ''
 
   const dirty = useMemo(() => {
@@ -127,6 +158,11 @@ export function SettingsPage() {
       form.api_key.trim() !== ''
     )
   }, [form, settings])
+
+  const promptDirty = useMemo(() => {
+    if (!promptSettings) return false
+    return promptDraft.trim() !== promptSettings.system_prompt.trim()
+  }, [promptDraft, promptSettings])
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((previous) => (previous ? { ...previous, [key]: value } : previous))
@@ -229,6 +265,39 @@ export function SettingsPage() {
       pushToast(err instanceof Error ? err.message : '恢复默认失败', 'error')
     } finally {
       setResetting(false)
+    }
+  }
+
+  const handleSavePrompt = async () => {
+    if (!promptDraft.trim()) {
+      pushToast('系统提示词不能为空；如需恢复默认请点击“恢复默认提示词”。', 'error')
+      return
+    }
+    setPromptSaving(true)
+    try {
+      const updated = await updateSystemPrompt(promptDraft.trim())
+      setPromptSettings(updated)
+      setPromptDraft(updated.system_prompt)
+      pushToast('系统提示词已保存并立即生效', 'success')
+    } catch (err) {
+      pushToast(err instanceof Error ? err.message : '系统提示词保存失败', 'error')
+    } finally {
+      setPromptSaving(false)
+    }
+  }
+
+  const handleResetPrompt = async () => {
+    if (!window.confirm('恢复默认系统提示词？当前自定义内容不会被保留。')) return
+    setPromptResetting(true)
+    try {
+      const updated = await resetSystemPrompt()
+      setPromptSettings(updated)
+      setPromptDraft(updated.system_prompt)
+      pushToast('已恢复默认系统提示词', 'success')
+    } catch (err) {
+      pushToast(err instanceof Error ? err.message : '恢复默认系统提示词失败', 'error')
+    } finally {
+      setPromptResetting(false)
     }
   }
 
@@ -425,6 +494,63 @@ export function SettingsPage() {
             </div>
           </div>
         ) : null}
+      </div>
+
+      <div className="card settings-card">
+        <div className="settings-card-head">
+          <h2>系统提示词</h2>
+          <span className={`badge ${promptSettings?.is_custom ? 'badge-accent' : ''}`}>
+            {promptSettings?.is_custom ? '自定义' : '默认'}
+          </span>
+        </div>
+        <p className="settings-sub" style={{ marginTop: 6 }}>
+          这段文字会作为 system message 发送给 AI 助教；后端会自动追加当前学习上下文。
+          保存后立即生效，所有会话（包括已有会话）都会使用新提示词。
+        </p>
+
+        {promptError ? (
+          <div className="placeholder-note">{promptError}</div>
+        ) : null}
+
+        {promptLoading ? (
+          <CenteredSpinner label="读取系统提示词…" />
+        ) : (
+          <>
+            <textarea
+              id="system-prompt"
+              className="form-control prompt-editor"
+              value={promptDraft}
+              rows={12}
+              spellCheck={false}
+              onChange={(event) => setPromptDraft(event.target.value)}
+            />
+            <div className="settings-actions">
+              <Button
+                variant="primary"
+                onClick={() => void handleSavePrompt()}
+                disabled={promptSaving || promptResetting || !promptDirty}
+              >
+                {promptSaving ? '保存中…' : '保存提示词'}
+              </Button>
+              <Button
+                onClick={() => void handleResetPrompt()}
+                disabled={promptSaving || promptResetting || !promptSettings?.is_custom}
+              >
+                {promptResetting ? '恢复中…' : '恢复默认提示词'}
+              </Button>
+              <span className="spacer" />
+              <span className="form-hint">
+                {promptDraft.length} 字符{promptDirty ? ' · 有未保存修改' : ''}
+              </span>
+            </div>
+            <details style={{ marginTop: 10 }}>
+              <summary className="form-hint" style={{ cursor: 'pointer' }}>
+                查看内置默认提示词
+              </summary>
+              <pre className="prompt-default">{promptSettings?.default_system_prompt}</pre>
+            </details>
+          </>
+        )}
       </div>
 
       <div className="card settings-card">
