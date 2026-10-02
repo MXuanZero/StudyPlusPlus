@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import type { ChatMessage, ChatQuote } from '../../api/types'
 import { useChatStore } from '../../store/chatStore'
 import { usePageContext } from '../../hooks/usePageContext'
@@ -10,6 +10,38 @@ const SUGGESTIONS = [
   '极点位置和稳定性是什么关系？',
   '超调量和阻尼比有什么关系？',
 ]
+
+const CHAT_WIDTH_KEY = 'spp.chat.panelWidth'
+const CHAT_DEFAULT_WIDTH = 440
+const CHAT_MIN_WIDTH = 360
+const CHAT_MAX_WIDTH = 860
+
+function chatMaxWidth(): number {
+  if (typeof window === 'undefined') return CHAT_MAX_WIDTH
+  return Math.max(CHAT_MIN_WIDTH, Math.min(CHAT_MAX_WIDTH, Math.floor(window.innerWidth * 0.85)))
+}
+
+function clampChatWidth(value: number): number {
+  return Math.min(chatMaxWidth(), Math.max(CHAT_MIN_WIDTH, value))
+}
+
+function loadChatWidth(): number {
+  if (typeof window === 'undefined') return CHAT_DEFAULT_WIDTH
+  try {
+    const saved = Number(window.localStorage.getItem(CHAT_WIDTH_KEY))
+    return Number.isFinite(saved) && saved > 0 ? clampChatWidth(saved) : CHAT_DEFAULT_WIDTH
+  } catch {
+    return CHAT_DEFAULT_WIDTH
+  }
+}
+
+function persistChatWidth(width: number): void {
+  try {
+    window.localStorage.setItem(CHAT_WIDTH_KEY, String(Math.round(width)))
+  } catch {
+    /* localStorage 不可用时仅本次页面生效 */
+  }
+}
 
 function quotesOf(message: ChatMessage): ChatQuote[] {
   const quotes = message.meta?.quotes
@@ -47,6 +79,28 @@ export function ChatPanel() {
   const [input, setInput] = useState('')
   const [showHistory, setShowHistory] = useState(false)
   const messagesRef = useRef<HTMLDivElement>(null)
+  const [panelWidth, setPanelWidth] = useState(loadChatWidth)
+  const widthRef = useRef(panelWidth)
+
+  useEffect(() => {
+    widthRef.current = panelWidth
+  }, [panelWidth])
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setPanelWidth((current) => {
+        const next = clampChatWidth(current)
+        widthRef.current = next
+        return next
+      })
+    }
+    window.addEventListener('resize', handleWindowResize)
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [])
+
+  useEffect(() => {
+    return () => document.body.classList.remove('is-col-resizing')
+  }, [])
 
   useEffect(() => {
     if (open) void loadSessions()
@@ -59,6 +113,39 @@ export function ChatPanel() {
 
   const contextChip = useMemo(() => contextLabel(pageContext), [pageContext])
 
+  const handleResizerPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = panelWidth
+    document.body.classList.add('is-col-resizing')
+    const handleMove = (moveEvent: PointerEvent) => {
+      const next = clampChatWidth(startWidth + (startX - moveEvent.clientX))
+      setPanelWidth(next)
+      widthRef.current = next
+    }
+    const finish = () => {
+      document.removeEventListener('pointermove', handleMove)
+      document.removeEventListener('pointerup', finish)
+      document.removeEventListener('pointercancel', finish)
+      document.body.classList.remove('is-col-resizing')
+      persistChatWidth(widthRef.current)
+      // Plotly 等响应式图表在面板宽度变化后重新计算尺寸。
+      window.dispatchEvent(new Event('resize'))
+    }
+    document.addEventListener('pointermove', handleMove)
+    document.addEventListener('pointerup', finish)
+    document.addEventListener('pointercancel', finish)
+  }
+
+  const resetPanelWidth = () => {
+    const next = clampChatWidth(CHAT_DEFAULT_WIDTH)
+    setPanelWidth(next)
+    widthRef.current = next
+    persistChatWidth(next)
+    window.dispatchEvent(new Event('resize'))
+  }
+
   const submit = (text?: string) => {
     const content = (text ?? input).trim()
     if (!content || streaming) return
@@ -67,7 +154,21 @@ export function ChatPanel() {
   }
 
   return (
-    <aside className={`chat-panel ${open ? 'open' : ''}`} aria-hidden={!open} aria-label="AI 助教面板">
+    <aside
+      className={`chat-panel ${open ? 'open' : ''}`}
+      style={{ width: panelWidth }}
+      aria-hidden={!open}
+      aria-label="AI 助教面板"
+    >
+      <div
+        className="chat-resizer"
+        onPointerDown={handleResizerPointerDown}
+        onDoubleClick={resetPanelWidth}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="拖动调整 AI 面板宽度"
+        title="拖动调整宽度，双击恢复默认"
+      />
       <header className="chat-head">
         <span className="chat-title">AI 助教</span>
         <span className="spacer" />
