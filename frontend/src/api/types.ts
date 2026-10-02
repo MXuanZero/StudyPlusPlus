@@ -22,8 +22,9 @@ export interface WidgetConfig {
 export interface TopicSummary {
   id: string
   title: string
-  file?: string
-  widgets?: WidgetConfig[]
+  file?: string | null
+  /** curriculum 中为 widget id 字符串数组；topic 详情中为完整 WidgetConfig。 */
+  widgets?: Array<string | WidgetConfig>
   status: Availability
 }
 
