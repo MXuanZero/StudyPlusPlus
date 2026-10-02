@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "AI 聊天支持 Markdown + KaTeX 渲染：标题、列表、代码块、表格、引用与行内/块级公式均可正确显示（61392bf）。" },
   { date: "2026-10-02", text: "修复 AI 流式显示 bug：meta 事件不再替换本地 assistant 消息 id，后续 delta 可正确追加内容；前端 build 通过（90b920f）。" },
   { date: "2026-10-02", text: "T11 完成：课程正文选中引用到 AI、pendingQuotes localStorage 记忆、已发送引用后端持久化并注入提示词；前端 build 与 quotes 接口 smoke 通过（6935e0b / 93eb4e7 / bc6571f / e6ad3c1 / 315f383）。" },
   { date: "2026-10-02", text: "新增 T11：课程正文引用到 AI 助教。后端 quotes 持久化与 prompt 注入已完成（6935e0b）；前端引用交互由 frontend-dev 开发中。" },
