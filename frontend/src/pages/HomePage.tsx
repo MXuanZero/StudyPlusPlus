@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { BookSummary, ChapterSummary } from '../api/types'
 import { CenteredSpinner } from '../components/ui/Spinner'
 import { useLearningStore } from '../store/learningStore'
+import { useProgressStore } from '../store/progressStore'
 import { chapterHeading } from '../utils/chapter'
 
 function BookCard({ book }: { book: BookSummary }) {
@@ -46,15 +47,49 @@ export function HomePage() {
   const loading = useLearningStore((state) => state.loading)
   const error = useLearningStore((state) => state.error)
   const loadCurriculum = useLearningStore((state) => state.loadCurriculum)
+  const progressItems = useProgressStore((state) => state.items)
+  const chapterProgressMap = useProgressStore((state) => state.chapterProgress)
+  const loadProgress = useProgressStore((state) => state.loadProgress)
+  const loadChapterProgress = useProgressStore((state) => state.loadChapterProgress)
 
   useEffect(() => {
     void loadCurriculum()
-  }, [loadCurriculum])
+    void loadProgress()
+  }, [loadCurriculum, loadProgress])
 
   const books = curriculum?.books ?? []
-  const firstAvailable = books
-    .flatMap((book) => book.chapters)
-    .find((chapter) => chapter.status === 'available' && chapter.topics.length > 0)
+  const chapters = books.flatMap((book) => book.chapters)
+  const firstAvailable = chapters.find(
+    (chapter) => chapter.status === 'available' && chapter.topics.length > 0,
+  )
+  const availableTopics = chapters
+    .filter((chapter) => chapter.status === 'available' && chapter.topics.length > 0)
+    .flatMap((chapter) =>
+      chapter.topics.map((topic) => ({
+        chapterId: chapter.id,
+        topicId: topic.id,
+        title: topic.title,
+      })),
+    )
+  const completedCount = availableTopics.filter(
+    (topic) => progressItems[topic.topicId]?.status === 'completed',
+  ).length
+  const totalTopics = availableTopics.length
+  const overallPercent = totalTopics ? Math.round((completedCount / totalTopics) * 100) : 0
+  const hasAnyProgress = Object.values(progressItems).some(
+    (item) => item.status !== 'not_started',
+  )
+  const nextTopic =
+    availableTopics.find((topic) => progressItems[topic.topicId]?.status !== 'completed') ??
+    availableTopics[0]
+  const currentChapterProgress = firstAvailable ? chapterProgressMap[firstAvailable.id] : undefined
+
+  useEffect(() => {
+    if (firstAvailable) void loadChapterProgress(firstAvailable.id)
+  }, [firstAvailable?.id, loadChapterProgress])
+
+  const primaryTo = nextTopic ? `/learn/${nextTopic.chapterId}/${nextTopic.topicId}` : '/learn/ch05'
+  const primaryLabel = hasAnyProgress ? '继续学习' : '开始学习第 5 章'
 
   return (
     <div className="home">
@@ -66,12 +101,55 @@ export function HomePage() {
           帮助数学与物理基础薄弱的你，从《控制之美》的目录出发逐步建立直觉。
         </p>
         <div className="home-actions">
-          <Link className="btn btn-primary" to={firstAvailable ? `/learn/${firstAvailable.id}` : '/learn/ch05'}>
-            开始学习第 5 章
+          <Link className="btn btn-primary" to={primaryTo}>
+            {primaryLabel}
           </Link>
           <Link className="btn" to="/settings">
             模型设置
           </Link>
+        </div>
+      </section>
+
+      <section className="home-progress">
+        <h2>学习进度</h2>
+        <p>进度保存在后端 SQLite，刷新页面或重启服务后依然保留。</p>
+        <div className="home-progress-grid">
+          <div className="card stat-card">
+            <div className="stat-label">总体进度</div>
+            <div className="stat-value">{overallPercent}%</div>
+            <div className="stat-sub">
+              已完成 {completedCount} / {totalTopics} 个知识点
+            </div>
+            <div className="progress-bar" style={{ maxWidth: '100%', marginTop: 10 }}>
+              <span style={{ width: `${overallPercent}%` }} />
+            </div>
+          </div>
+          <div className="card stat-card">
+            <div className="stat-label">当前章节</div>
+            <div className="stat-value" style={{ fontSize: 16, lineHeight: 1.45 }}>
+              {firstAvailable ? chapterHeading(firstAvailable.id, firstAvailable.title) : '—'}
+            </div>
+            <div className="stat-sub">
+              {currentChapterProgress
+                ? `已完成 ${currentChapterProgress.completed} / ${currentChapterProgress.total} 节 · ${currentChapterProgress.percent}%`
+                : '章节进度加载中…'}
+            </div>
+          </div>
+          <div className="card stat-card">
+            <div className="stat-label">下一步</div>
+            <div className="stat-value" style={{ fontSize: 16, lineHeight: 1.45 }}>
+              {nextTopic ? nextTopic.title : '已学完当前所有内容'}
+            </div>
+            {nextTopic ? (
+              <Link
+                className="btn btn-primary btn-sm"
+                style={{ marginTop: 10 }}
+                to={`/learn/${nextTopic.chapterId}/${nextTopic.topicId}`}
+              >
+                继续学习
+              </Link>
+            ) : null}
+          </div>
         </div>
       </section>
 

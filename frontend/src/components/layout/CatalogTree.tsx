@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import type { ChapterSummary } from '../../api/types'
 import { useLearningStore } from '../../store/learningStore'
+import { useProgressStore } from '../../store/progressStore'
 import { chapterHeading } from '../../utils/chapter'
 
 interface CatalogTreeProps {
@@ -14,11 +15,14 @@ export function CatalogTree({ collapsed }: CatalogTreeProps) {
   const loading = useLearningStore((state) => state.loading)
   const error = useLearningStore((state) => state.error)
   const loadCurriculum = useLearningStore((state) => state.loadCurriculum)
+  const progressItems = useProgressStore((state) => state.items)
+  const loadProgress = useProgressStore((state) => state.loadProgress)
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['ch05']))
 
   useEffect(() => {
     void loadCurriculum()
-  }, [loadCurriculum])
+    void loadProgress()
+  }, [loadCurriculum, loadProgress])
 
   useEffect(() => {
     if (activeChapterId) {
@@ -86,14 +90,21 @@ export function CatalogTree({ collapsed }: CatalogTreeProps) {
                   <ul className="catalog-topics">
                     {chapter.topics.map((topic) => {
                       const isActive = topic.id === activeTopicId
+                      const status = progressItems[topic.id]?.status ?? 'not_started'
+                      const stateClass =
+                        status === 'completed' ? 'completed' : status === 'learning' ? 'learning' : ''
                       return (
                         <li key={topic.id}>
                           <Link
                             to={`/learn/${chapter.id}/${topic.id}`}
-                            className={`catalog-topic ${isActive ? 'active' : ''}`}
+                            className={`catalog-topic ${isActive ? 'active' : ''} ${stateClass}`}
+                            title={status === 'completed' ? '已完成' : status === 'learning' ? '学习中' : '未开始'}
                           >
                             <span className="dot" />
                             <span>{topic.title}</span>
+                            <span className="topic-state">
+                              {status === 'completed' ? '✓' : status === 'learning' ? '●' : ''}
+                            </span>
                           </Link>
                         </li>
                       )

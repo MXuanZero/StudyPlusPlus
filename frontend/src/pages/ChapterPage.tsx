@@ -5,8 +5,10 @@ import { ApiError } from '../api/client'
 import type { TopicDetail } from '../api/types'
 import { CatalogTree } from '../components/layout/CatalogTree'
 import { MarkdownRenderer } from '../components/markdown/MarkdownRenderer'
+import { ProgressControl } from '../components/progress/ProgressControl'
 import { CenteredSpinner } from '../components/ui/Spinner'
 import { useLearningStore } from '../store/learningStore'
+import { useProgressStore } from '../store/progressStore'
 
 function StateBlock({
   title,
@@ -34,6 +36,9 @@ export function ChapterPage() {
   const loaded = useLearningStore((state) => state.loaded)
   const loadCurriculum = useLearningStore((state) => state.loadCurriculum)
   const findChapter = useLearningStore((state) => state.findChapter)
+  const loadProgress = useProgressStore((state) => state.loadProgress)
+  const loadChapterProgress = useProgressStore((state) => state.loadChapterProgress)
+  const chapterProgress = useProgressStore((state) => (chapterId ? state.chapterProgress[chapterId] : undefined))
 
   const [collapsed, setCollapsed] = useState(false)
   const [topic, setTopic] = useState<TopicDetail | null>(null)
@@ -42,7 +47,16 @@ export function ChapterPage() {
 
   useEffect(() => {
     void loadCurriculum()
-  }, [loadCurriculum])
+    void loadProgress()
+  }, [loadCurriculum, loadProgress])
+
+  useEffect(() => {
+    if (!chapterId) return
+    const info = findChapter(chapterId)
+    if (info?.chapter.status === 'available' && info.chapter.topics.length > 0) {
+      void loadChapterProgress(chapterId, true)
+    }
+  }, [chapterId, findChapter, loadChapterProgress])
 
   const chapterInfo = chapterId ? findChapter(chapterId) : null
   const firstTopicId = chapterInfo?.chapter.topics[0]?.id
@@ -160,11 +174,25 @@ export function ChapterPage() {
 
           {topic ? (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+              <div className="topic-toolbar">
                 <span className="badge badge-accent">
                   第 {chapter.topics.findIndex((item) => item.id === topic.id) + 1} / {chapter.topics.length} 节
                 </span>
-                <span className="badge">进度记录占位</span>
+                <ProgressControl
+                  topicId={topic.id}
+                  onChanged={() => void loadChapterProgress(chapter.id, true)}
+                />
+                {chapterProgress ? (
+                  <span className="progress-row" title={`本章已完成 ${chapterProgress.completed}/${chapterProgress.total} 节`}>
+                    <span className="small muted">
+                      本章 {chapterProgress.completed}/{chapterProgress.total}
+                    </span>
+                    <span className="progress-bar">
+                      <span style={{ width: `${chapterProgress.percent}%` }} />
+                    </span>
+                    <span className="small">{chapterProgress.percent}%</span>
+                  </span>
+                ) : null}
               </div>
               <h1 className="topic-title">{topic.title}</h1>
               <p className="topic-summary">{topic.summary}</p>
