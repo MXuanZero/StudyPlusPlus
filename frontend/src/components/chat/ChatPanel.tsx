@@ -173,7 +173,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
       className={`chat-panel ${inline ? 'inline' : open ? 'open' : ''}`}
       style={{ width: panelWidth }}
       aria-hidden={inline ? false : !open}
-      aria-label={inline ? 'AI 助教分屏面板' : 'AI 助教面板'}
+      aria-label="AI 助教面板"
     >
       <div
         className="chat-resizer"
@@ -196,7 +196,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
             »
           </button>
         ) : null}
-        <span className="chat-title">{inline ? 'AI 助教 · 分屏' : 'AI 助教'}</span>
+        <span className="chat-title">'AI 助教'</span>
         <span className="spacer" />
         <button
           type="button"

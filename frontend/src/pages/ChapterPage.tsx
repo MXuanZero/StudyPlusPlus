@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { fetchTopic } from '../api/curriculum'
 import { ApiError } from '../api/client'
@@ -36,6 +36,41 @@ function topicPath(chapterId: string, topicId: string, assistantMode: boolean): 
   return `/learn/${chapterId}/${topicId}${assistantMode ? '/assistant' : ''}`
 }
 
+const CATALOG_WIDTH_KEY = 'spp.catalog.width'
+const CATALOG_DEFAULT_WIDTH = 284
+const CATALOG_MIN_WIDTH = 220
+const CATALOG_MAX_WIDTH = 440
+
+function catalogMaxWidth(): number {
+  if (typeof window === 'undefined') return CATALOG_MAX_WIDTH
+  return Math.max(
+    CATALOG_MIN_WIDTH,
+    Math.min(CATALOG_MAX_WIDTH, Math.floor(window.innerWidth * 0.35)),
+  )
+}
+
+function clampCatalogWidth(value: number): number {
+  return Math.min(catalogMaxWidth(), Math.max(CATALOG_MIN_WIDTH, value))
+}
+
+function loadCatalogWidth(): number {
+  if (typeof window === 'undefined') return CATALOG_DEFAULT_WIDTH
+  try {
+    const saved = Number(window.localStorage.getItem(CATALOG_WIDTH_KEY))
+    return Number.isFinite(saved) && saved > 0 ? clampCatalogWidth(saved) : CATALOG_DEFAULT_WIDTH
+  } catch {
+    return CATALOG_DEFAULT_WIDTH
+  }
+}
+
+function persistCatalogWidth(width: number): void {
+  try {
+    window.localStorage.setItem(CATALOG_WIDTH_KEY, String(Math.round(width)))
+  } catch {
+    /* localStorage 不可用时仅本次页面生效 */
+  }
+}
+
 interface ChapterPageProps {
   /** true：AI 分屏路由 /learn/:chapterId/:topicId/assistant */
   assistantMode?: boolean
@@ -55,10 +90,29 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   const chapterProgress = useProgressStore((state) => (chapterId ? state.chapterProgress[chapterId] : undefined))
 
   const [collapsed, setCollapsed] = useState(false)
+  const [catalogWidth, setCatalogWidth] = useState(loadCatalogWidth)
+  const catalogWidthRef = useRef(catalogWidth)
   const [notesOpen, setNotesOpen] = useState(false)
   const [topic, setTopic] = useState<TopicDetail | null>(null)
   const [topicLoading, setTopicLoading] = useState(false)
   const [topicError, setTopicError] = useState<{ code: string; message: string } | null>(null)
+
+  useEffect(() => {
+    catalogWidthRef.current = catalogWidth
+    document.documentElement.style.setProperty('--catalog-width', `${catalogWidth}px`)
+  }, [catalogWidth])
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setCatalogWidth((current) => {
+        const next = clampCatalogWidth(current)
+        catalogWidthRef.current = next
+        return next
+      })
+    }
+    window.addEventListener('resize', handleWindowResize)
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [])
 
   useEffect(() => {
     void loadCurriculum()
@@ -144,11 +198,44 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
 
   const topicUnavailable = topicError?.code === 'TOPIC_NOT_AVAILABLE' || topicError?.code === 'TOPIC_NOT_FOUND'
 
+  const handleCatalogResizerPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = catalogWidth
+    document.body.classList.add('is-col-resizing')
+
+    const handleMove = (moveEvent: PointerEvent) => {
+      const next = clampCatalogWidth(startWidth + (moveEvent.clientX - startX))
+      setCatalogWidth(next)
+      catalogWidthRef.current = next
+    }
+    const finish = () => {
+      document.removeEventListener('pointermove', handleMove)
+      document.removeEventListener('pointerup', finish)
+      document.removeEventListener('pointercancel', finish)
+      document.body.classList.remove('is-col-resizing')
+      persistCatalogWidth(catalogWidthRef.current)
+      window.dispatchEvent(new Event('resize'))
+    }
+    document.addEventListener('pointermove', handleMove)
+    document.addEventListener('pointerup', finish)
+    document.addEventListener('pointercancel', finish)
+  }
+
+  const resetCatalogWidth = () => {
+    const next = clampCatalogWidth(CATALOG_DEFAULT_WIDTH)
+    setCatalogWidth(next)
+    catalogWidthRef.current = next
+    persistCatalogWidth(next)
+    window.dispatchEvent(new Event('resize'))
+  }
+
   return (
     <div className={`learn-layout${assistantMode ? ' with-assistant' : ''}${collapsed ? ' catalog-collapsed' : ''}`}>
       {collapsed ? <CatalogReveal onOpen={() => setCollapsed(false)} /> : null}
       {!collapsed ? (
-        <aside className="catalog">
+        <aside className="catalog" style={{ width: catalogWidth, flexBasis: catalogWidth }}>
           <div className="catalog-head">
             <Link to="/" className="brand catalog-brand" title="返回首页">
               <span className="brand-mark">S+</span>
@@ -166,6 +253,15 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
           </div>
           <div className="catalog-section-title">课程目录</div>
           <CatalogTree collapsed={false} />
+          <div
+            className="catalog-resizer"
+            onPointerDown={handleCatalogResizerPointerDown}
+            onDoubleClick={resetCatalogWidth}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="拖动调整课程目录宽度"
+            title="拖动调整目录宽度，双击恢复默认"
+          />
         </aside>
       ) : null}
 

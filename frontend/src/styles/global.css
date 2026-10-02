@@ -774,3 +774,43 @@ body.is-col-resizing * { user-select: none !important; }
   white-space: pre-wrap;
   color: var(--muted);
 }
+
+/* ---------- Catalog width resizer ---------- */
+.catalog-resizer {
+  position: absolute; top: 0; right: -3px; bottom: 0; width: 6px;
+  z-index: 6; cursor: col-resize; touch-action: none;
+}
+.catalog-resizer::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 2px; width: 2px;
+  background: transparent; transition: background 0.15s;
+}
+.catalog-resizer:hover::after,
+body.is-col-resizing .catalog-resizer::after { background: var(--accent); }
+
+/* ---------- Divider-based chat messages (no bubbles) ---------- */
+.chat-messages { gap: 0; padding: 8px 16px 8px; }
+.chat-message {
+  align-items: stretch; gap: 3px;
+  padding: 12px 0 8px;
+  border-top: 1px solid var(--border);
+}
+.chat-message:first-child { border-top: 0; }
+.chat-message.user { align-items: stretch; }
+.chat-message .role { font-size: 11px; font-weight: 650; color: var(--faint); letter-spacing: 0.02em; }
+.chat-bubble {
+  background: transparent !important;
+  border: none !important;
+  padding: 0;
+  border-radius: 0;
+  max-width: 100%;
+  color: var(--text);
+}
+.chat-message.user .chat-bubble,
+.chat-message.assistant .chat-bubble { color: var(--text); background: transparent !important; }
+
+/* ---------- Inline AI panel entrance ---------- */
+.chat-panel.inline { animation: chat-panel-in-left 0.2s ease-out; }
+@keyframes chat-panel-in-left {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}

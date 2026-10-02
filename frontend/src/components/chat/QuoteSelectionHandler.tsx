@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { usePageContext } from '../../hooks/usePageContext'
 import { useAppStore } from '../../store/appStore'
 import { useChatStore } from '../../store/chatStore'
@@ -16,6 +17,8 @@ interface ButtonPosition {
  * 在选区旁显示“引用到 AI”浮动按钮。
  */
 export function QuoteSelectionHandler() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const pageContext = usePageContext()
   const addQuote = useChatStore((state) => state.addQuote)
   const openPanel = useChatStore((state) => state.openPanel)
@@ -101,7 +104,19 @@ export function QuoteSelectionHandler() {
     if (result === 'added') pushToast('已加入待发送引用', 'success')
     else if (result === 'duplicate') pushToast('这条引用已在待发送列表中', 'info')
     else pushToast('待发送引用最多 5 条，请先删除或发送', 'error')
-    openPanel()
+
+    // 知识点页面：点击引用后立即进入 AI 分屏页面，引用卡片会直接出现在输入框上方。
+    const normalizedPath = location.pathname.replace(/\/+$/, '')
+    const segments = normalizedPath.split('/').filter(Boolean)
+    const isLearnTopicPage =
+      segments[0] === 'learn' && segments.length >= 3 && !normalizedPath.endsWith('/assistant')
+
+    if (isLearnTopicPage) {
+      navigate(`${normalizedPath}/assistant`)
+    } else {
+      openPanel()
+    }
+
     window.getSelection()?.removeAllRanges()
     hide()
   }
