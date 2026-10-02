@@ -274,7 +274,14 @@ async def stream_message(session_id: str, payload: ChatStreamRequest) -> Streami
         context = _load_json(session["context_json"])
         _touch_session(session_id, None)
 
-    _insert_message(session_id, "user", user_content)
+    user_meta = None
+    if payload.quotes:
+        user_meta = {
+            "quotes": [
+                quote.model_dump(exclude_none=True) for quote in payload.quotes
+            ]
+        }
+    _insert_message(session_id, "user", user_content, user_meta)
     history = _fetch_history(session_id)
 
     config, key_source = llm.resolve_llm_settings()

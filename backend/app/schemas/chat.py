@@ -13,11 +13,29 @@ class ChatSessionCreate(BaseModel):
     context: dict[str, Any] | None = None
 
 
+class ChatQuote(BaseModel):
+    """A passage selected from the courseware and quoted in a chat request."""
+
+    id: str | None = Field(default=None, max_length=120)
+    text: str = Field(min_length=1, max_length=5_000)
+    source: str | None = Field(default=None, max_length=500)
+    topic_id: str | None = Field(default=None, max_length=120)
+    topic_title: str | None = Field(default=None, max_length=300)
+
+    @field_validator("text")
+    @classmethod
+    def _text_not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("引用内容不能为空")
+        return value
+
+
 class ChatStreamRequest(BaseModel):
     """Body for ``POST /chat/sessions/{id}/stream``."""
 
     content: str = Field(min_length=1, max_length=32_000)
     context: dict[str, Any] | None = None
+    quotes: list[ChatQuote] = Field(default_factory=list, max_length=10)
 
     @field_validator("content")
     @classmethod

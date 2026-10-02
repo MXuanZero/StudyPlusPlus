@@ -84,6 +84,51 @@ def build_system_prompt(context: dict[str, Any] | None = None) -> str:
     return f"{base_prompt}\n\n{context_block}\n\n{CONTEXT_GUARD}"
 
 
+def _extract_quotes(item: dict[str, Any]) -> list[dict[str, Any]]:
+    """Read persisted quote metadata from a history row.
+
+    ``_fetch_history`` returns raw ``meta_json`` strings, but tests and future
+    callers may pass an already-decoded ``meta`` dict; support both shapes.
+    """
+
+    raw = item.get("meta_json", item.get("meta"))
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except json.JSONDecodeError:
+            return []
+    if not isinstance(raw, dict):
+        return []
+    quotes = raw.get("quotes")
+    return quotes if isinstance(quotes, list) else []
+
+
+def _format_quoted_user_content(content: str, quotes: list[dict[str, Any]]) -> str:
+    """Prepend quoted course excerpts to the user message sent to the model."""
+
+    lines: list[str] = []
+    for quote in quotes[:10]:
+        if not isinstance(quote, dict):
+            continue
+        text = str(quote.get("text") or "").strip()
+        if not text:
+            continue
+        source = str(quote.get("source") or "").strip()
+        line = f"> {text}"
+        if source:
+            line += f"\n> —— {source}"
+        lines.append(line)
+
+    if not lines:
+        return content
+    return (
+        "用户引用了以下课程内容，请结合引用回答；"
+        "如果引用与问题无关，请先指出这一点。\n\n"
+        + "\n\n".join(lines)
+        + f"\n\n我的问题：{content}"
+    )
+
+
 def build_messages(
     history: list[dict[str, Any]],
     context: dict[str, Any] | None = None,
@@ -92,7 +137,8 @@ def build_messages(
 
     ``history`` should already contain the latest user message (the chat
     router persists it before streaming). System messages are skipped because
-    the system prompt is generated server-side.
+    the system prompt is generated server-side. Persisted quote metadata is
+    injected ahead of the user's question so the tutor can ground its answer.
     """
 
     messages: list[dict[str, str]] = [
@@ -101,6 +147,16 @@ def build_messages(
     for item in history:
         role = item.get("role")
         content = item.get("content")
-        if role in ("user", "assistant") and isinstance(content, str) and content:
-            messages.append({"role": role, "content": content})
+        if role == "user" and isinstance(content, str) and content:
+            quotes = _extract_quotes(item)
+            messages.append(
+                {
+                    "role": "user",
+                    "content": _format_quoted_user_content(content, quotes)
+                    if quotes
+                    else content,
+                }
+            )
+        elif role == "assistant" and isinstance(content, str) and content:
+            messages.append({"role": "assistant", "content": content})
     return messages
