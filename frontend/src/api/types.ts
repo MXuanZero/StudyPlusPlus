@@ -131,9 +131,20 @@ export interface ChatContext {
   book?: string
   chapter?: string
   topic?: string
+  topic_id?: string
+  chapter_id?: string
   route?: string
   learning_objectives?: string[]
   learning_path?: string[]
+}
+
+/** 从课程正文选中并引用给 AI 的段落。 */
+export interface ChatQuote {
+  id?: string
+  text: string
+  source?: string
+  topic_id?: string
+  topic_title?: string
 }
 
 export interface ChatSession {
@@ -147,13 +158,21 @@ export interface ChatSession {
 
 export type ChatRole = 'user' | 'assistant' | 'system'
 
+export interface ChatMessageMeta {
+  quotes?: ChatQuote[]
+  message_id?: string
+  mode?: string
+  usage?: Record<string, unknown>
+  [key: string]: unknown
+}
+
 export interface ChatMessage {
   id?: string | number
   session_id?: string
   role: ChatRole
   content: string
   created_at?: string
-  meta?: Record<string, unknown> | null
+  meta?: ChatMessageMeta | null
 }
 
 export interface ChatStreamEvent {

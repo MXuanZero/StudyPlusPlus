@@ -1,6 +1,6 @@
 /** Chat endpoints + SSE stream parsing. Real API first, dev mock only as fallback. */
 import { API_BASE, apiDelete, apiGet, apiPost, isBackendUnavailable } from './client'
-import type { ChatContext, ChatMessage, ChatSession } from './types'
+import type { ChatContext, ChatMessage, ChatQuote, ChatSession } from './types'
 import { useAppStore } from '../store/appStore'
 
 export interface StreamHandlers {
@@ -8,6 +8,12 @@ export interface StreamHandlers {
   onDelta?: (text: string) => void
   onDone?: (data: Record<string, unknown>) => void
   onError?: (code: string, message: string) => void
+}
+
+export interface StreamChatOptions {
+  /** 课程正文引用，最多 10 条；不传时请求体与旧行为一致。 */
+  quotes?: ChatQuote[]
+  signal?: AbortSignal
 }
 
 function mockEnabled(): boolean {
@@ -146,10 +152,12 @@ export async function streamChat(
   content: string,
   context: ChatContext | null | undefined,
   handlers: StreamHandlers,
-  signal?: AbortSignal,
+  options: StreamChatOptions = {},
 ): Promise<void> {
+  const { quotes, signal } = options
   const body: Record<string, unknown> = { content }
   if (context) body.context = context
+  if (quotes?.length) body.quotes = quotes
   let response: Response
   try {
     response = await fetch(`${API_BASE}/chat/sessions/${encodeURIComponent(sessionId)}/stream`, {
@@ -163,7 +171,7 @@ export async function streamChat(
     if (mockEnabled()) {
       const { mockStreamMessage } = await import('../mocks/chat')
       useAppStore.getState().setDataSource('mock')
-      await mockStreamMessage(sessionId, content, context, handlers, signal)
+      await mockStreamMessage(sessionId, content, context, handlers, { signal, quotes })
       return
     }
     handlers.onError?.('LLM_CONNECTION_ERROR', error instanceof Error ? error.message : '无法连接后端')
@@ -181,7 +189,7 @@ export async function streamChat(
     if (mockEnabled() && (response.status === 404 || response.status === 405)) {
       const { mockStreamMessage } = await import('../mocks/chat')
       useAppStore.getState().setDataSource('mock')
-      await mockStreamMessage(sessionId, content, context, handlers, signal)
+      await mockStreamMessage(sessionId, content, context, handlers, { signal, quotes })
       return
     }
     handlers.onError?.(

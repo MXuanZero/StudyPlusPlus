@@ -4,7 +4,7 @@
  * 生产环境必须连接后端 SSE；这里只在开发期后端 T6 未就绪时兜底，
  * 会话写入 localStorage，便于刷新后继续验证历史功能。
  */
-import type { ChatContext, ChatMessage, ChatSession } from '../api/types'
+import type { ChatContext, ChatMessage, ChatQuote, ChatSession } from '../api/types'
 
 const SESSION_KEY = 'spp.mock.chat.sessions'
 const MESSAGE_KEY = 'spp.mock.chat.messages'
@@ -93,20 +93,33 @@ export interface MockStreamHandlers {
   onError?: (code: string, message: string) => void
 }
 
+export interface MockStreamOptions {
+  signal?: AbortSignal
+  quotes?: ChatQuote[]
+}
+
 export async function mockStreamMessage(
   sessionId: string,
   content: string,
   context: ChatContext | null | undefined,
   handlers: MockStreamHandlers,
-  signal?: AbortSignal,
+  options: MockStreamOptions = {},
 ): Promise<void> {
+  const { signal, quotes } = options
   const session = memorySessions.find((item) => item.id === sessionId)
   if (!session) {
     handlers.onError?.('SESSION_NOT_FOUND', '会话不存在')
     return
   }
   const now = new Date().toISOString()
-  const userMessage: ChatMessage = { id: `msg_mock_${Date.now()}u`, session_id: sessionId, role: 'user', content, created_at: now }
+  const userMessage: ChatMessage = {
+    id: `msg_mock_${Date.now()}u`,
+    session_id: sessionId,
+    role: 'user',
+    content,
+    created_at: now,
+    meta: quotes?.length ? { quotes } : null,
+  }
   memoryMessages[sessionId] = [...(memoryMessages[sessionId] ?? []), userMessage]
   if (session.title === '新会话') session.title = content.slice(0, 18) || '新会话'
   session.updated_at = now
