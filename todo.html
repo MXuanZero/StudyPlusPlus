@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T16 完成：引用处显示“引用”标签；AI 标题去掉多余引号；首条提问自动生成会话名称（Live 用 AI 总结，Mock 用截断兜底）；全量 pytest 与前端 build 通过（043386a/de88e43）。" },
   { date: "2026-10-02", text: "T15 完成：引用后立即进入 AI 助教页；目录宽度可拖拽持久化；AI 标题统一；聊天去气泡改分割线 + 小字角色；前端 build 通过（6207946）。" },
   { date: "2026-10-02", text: "系统提示词新增第 7 条：输出数学公式时优先使用 LaTeX（行内 $...$、独立 $$...$$）；内置 fallback 与测试同步更新。" },
   { date: "2026-10-02", text: "T14 完成：设置页可编辑系统提示词，后端保存到 app_settings 并立即生效，可恢复内置默认；后端测试与前端 build 通过（6fab54c/4a2df41）。" },
@@ -563,6 +564,23 @@ const TASKS = [
       { text: "聊天消息去掉气泡，改为分割线 + 小字角色标签", done: true },
       { text: "npm run build 通过，回归引用/分屏/课程阅读", done: true },
       { text: "完成 T15 验收并更新 todo.html", done: true }
+    ]
+  },
+  {
+    id: "T16",
+    title: "引用标签与会话自动命名",
+    phase: "体验优化",
+    status: "completed",
+    owner: "Lead + 后端",
+    deps: ["T11", "T15"],
+    deliverable: "引用处显示“引用”标签；AI 标题去掉引号；首条提问自动生成会话名称。",
+    acceptance: "引用标签可见；标题无多余引号；新会话标题由 AI 总结生成，Mock 模式使用问题摘要兜底。",
+    subtasks: [
+      { text: "待发送引用与消息引用块增加“引用”标签", done: true },
+      { text: "修复 AI 助教标题文字多余引号", done: true },
+      { text: "后端根据首条用户消息生成会话标题，Mock 模式使用截断兜底", done: true },
+      { text: "新增标题生成测试并通过全量 pytest + 前端 build", done: true },
+      { text: "完成 T16 验收并更新 todo.html", done: true }
     ]
   }
 ];
