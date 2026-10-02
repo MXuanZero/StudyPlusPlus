@@ -35,14 +35,14 @@ export function ChatDock() {
       <button
         type="button"
         className="chat-dock"
-        aria-label={isTopicPage ? '进入 AI 分屏学习页面' : '打开课程后使用 AI 分屏'}
+        aria-label={isTopicPage ? '打开 AI 助教' : '打开课程后使用 AI 助教'}
         onClick={() => {
           if (isTopicPage) navigate(`${path}/assistant`)
         }}
-        title={isTopicPage ? 'AI 分屏' : '打开知识点后使用 AI 分屏'}
+        title="AI 助教"
       >
         ✦
-        <span className="dock-label">AI 分屏</span>
+        <span className="dock-label">AI 助教</span>
       </button>
     )
   }

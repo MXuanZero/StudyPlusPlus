@@ -207,8 +207,14 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
           ☰
         </button>
         {inline ? (
-          <button type="button" className="btn btn-sm" title="折叠 AI 助教" aria-label="折叠 AI 助教" onClick={onCollapse}>
-            折叠 »
+          <button
+            type="button"
+            className="icon-btn"
+            title="收起 AI 助教"
+            aria-label="收起 AI 助教"
+            onClick={onCollapse}
+          >
+            »
           </button>
         ) : (
           <button type="button" className="icon-btn" title="关闭" aria-label="关闭对话面板" onClick={closePanel}>

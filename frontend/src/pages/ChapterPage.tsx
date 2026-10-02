@@ -223,13 +223,6 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
                   </span>
                 ) : null}
                 <span className="spacer" />
-                <Link
-                  className={`btn btn-sm ${assistantMode ? '' : 'btn-primary'}`}
-                  to={topicPath(chapter.id, topic.id, !assistantMode)}
-                  title={assistantMode ? '返回普通课程页面' : '在右侧常驻 AI 助教'}
-                >
-                  {assistantMode ? '退出分屏' : 'AI 分屏'}
-                </Link>
                 <Button size="sm" onClick={() => setNotesOpen(true)}>
                   笔记
                 </Button>
