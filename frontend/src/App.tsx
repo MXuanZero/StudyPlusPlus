@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { ChatDock } from './components/chat/ChatDock'
 import { AppLayout } from './components/layout/AppLayout'
 import { ToastHost } from './components/ui/ToastHost'
 import { ChapterPage } from './pages/ChapterPage'
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <ChatDock />
       <ToastHost />
     </>
   )

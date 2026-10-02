@@ -67,6 +67,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   selectSession: async (sessionId) => {
     if (sessionId === get().currentSessionId) return
+    get().stopStreaming()
     set({ currentSessionId: sessionId, messages: [], error: null })
     if (!sessionId) return
     set({ loadingMessages: true })
@@ -79,10 +80,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  startNewSession: (context) => {
+  startNewSession: () => {
     get().stopStreaming()
     set({ currentSessionId: null, messages: [], streamingText: '', error: null })
-    if (context) set({ error: null })
   },
 
   ensureSession: async (context) => {
@@ -179,13 +179,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   stopStreaming: () => {
     get().abortController?.abort()
     set({ streaming: false, abortController: null })
-    if (get().streamingText) {
-      set((state) => {
-        const messages = state.messages.map((message) => {
-          if (message.role !== 'assistant') return message
-          return message.content ? { ...message, content: `${message.content}\n\n_（已停止生成）_` } : message
-        })
-        return { messages }
+    const messages = get().messages
+    let lastAssistant = -1
+    messages.forEach((message, index) => {
+      if (message.role === 'assistant') lastAssistant = index
+    })
+    if (lastAssistant >= 0 && messages[lastAssistant].content) {
+      set({
+        messages: messages.map((message, index) =>
+          index === lastAssistant ? { ...message, content: `${message.content}\n\n_（已停止生成）_` } : message,
+        ),
       })
     }
   },
