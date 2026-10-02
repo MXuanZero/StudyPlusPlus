@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "修复 AI 伪分屏：移除 inline 面板 fixed 覆盖定位，改为 flex 占位 + sticky；拖宽 AI 时课程正文同步移动、重排，图表通过 ResizeObserver 调整尺寸；面板顶部新增折叠按钮，返回课程后可从 AI 分屏入口重新展开。前端 build、SPA 入口与静态资源检查通过；当前无可用浏览器，拖拽/折叠视觉复核待完成。" },
   { date: "2026-10-02", text: "增加双保险：ChatPanel drawer 模式在所有 /learn 路由直接拒绝渲染，彻底避免旧抽屉出现在课程页面（83e30b4）。" },
   { date: "2026-10-02", text: "彻底禁止 /learn 页面出现旧抽屉：所有知识点页 AI 按钮只进入 /assistant 分屏；index.html 增加 no-cache，避免重建后浏览器仍加载旧 JS（0fc100b/dfb2f1a）。" },
   { date: "2026-10-02", text: "明确分屏入口：知识点页面右下角 AI 悬浮按钮改为直接进入 /assistant 分屏页，不再弹出旧右侧抽屉；仅首页/设置等页面使用抽屉（7375126）。" },
@@ -512,12 +513,13 @@ const TASKS = [
     owner: "前端智能体",
     deps: ["T7", "T12"],
     deliverable: "独立分屏路由、ChatPanel inline 模式、分屏/退出按钮、ChatDock 隐藏逻辑。",
-    acceptance: "课程内容与 AI 助教左右二分屏常驻；保留流式、引用、拖拽调宽；普通页面抽屉不回归。",
+    acceptance: "课程内容与 AI 助教真实左右分屏；拖宽 AI 会压缩并移动正文；顶部可折叠并重新展开；保留流式、引用、宽度持久化。浏览器交互视觉复核待完成。",
     subtasks: [
       { text: "新增 /learn/:chapterId/:topicId/assistant 路由与页面入口按钮", done: true },
-      { text: "ChatPanel 支持 inline 分屏模式（常驻、不浮层、隐藏关闭按钮）", done: true },
+      { text: "ChatPanel 支持 inline 分屏模式（flex 占位、sticky 常驻、顶部折叠按钮）", done: true },
       { text: "分屏时 ChatDock 不渲染，上一节/下一节保持 /assistant 后缀", done: true },
       { text: "分屏布局 CSS 与拖拽宽度持久化兼容", done: true },
+      { text: "正文按容器宽度重排，图表随 AI 宽度与目录折叠自动调整", done: true },
       { text: "npm run build 通过，回归普通聊天/引用/课程内容", done: true },
       { text: "完成 T13 验收并更新 todo.html", done: true }
     ]

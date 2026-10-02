@@ -60,9 +60,10 @@ export type ChatPanelVariant = 'drawer' | 'inline'
 interface ChatPanelProps {
   /** drawer：右侧浮层（默认）；inline：常驻分屏，占据 learn-layout 的 flex 子项。 */
   variant?: ChatPanelVariant
+  onCollapse?: () => void
 }
 
-export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
+export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
   const inline = variant === 'inline'
   const location = useLocation()
   const open = useChatStore((state) => state.open)
@@ -127,7 +128,7 @@ export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
     if (event.pointerType === 'mouse' && event.button !== 0) return
     event.preventDefault()
     const startX = event.clientX
-    const startWidth = panelWidth
+    const startWidth = event.currentTarget.parentElement?.getBoundingClientRect().width ?? panelWidth
     document.body.classList.add('is-col-resizing')
     const handleMove = (moveEvent: PointerEvent) => {
       const next = clampChatWidth(startWidth + (startX - moveEvent.clientX))
@@ -205,7 +206,11 @@ export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
         >
           ☰
         </button>
-        {inline ? null : (
+        {inline ? (
+          <button type="button" className="btn btn-sm" title="折叠 AI 助教" aria-label="折叠 AI 助教" onClick={onCollapse}>
+            折叠 »
+          </button>
+        ) : (
           <button type="button" className="icon-btn" title="关闭" aria-label="关闭对话面板" onClick={closePanel}>
             ×
           </button>

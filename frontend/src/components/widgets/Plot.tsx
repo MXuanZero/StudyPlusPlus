@@ -64,8 +64,20 @@ export function Plot({ data, layout, height = 320, className = '', ariaLabel }: 
 
   useEffect(() => {
     const host = hostRef.current
+    if (!host) return
+    // 分屏拖拽、目录折叠不会改变窗口尺寸，直接观察图表容器。
+    let frame = 0
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        if (host.clientWidth && host.clientHeight) void Plotly.Plots.resize(host)
+      })
+    })
+    observer.observe(host)
     return () => {
-      if (host) Plotly.purge(host)
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+      Plotly.purge(host)
     }
   }, [])
 

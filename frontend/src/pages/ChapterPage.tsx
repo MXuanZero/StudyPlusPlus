@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { fetchTopic } from '../api/curriculum'
 import { ApiError } from '../api/client'
 import type { TopicDetail } from '../api/types'
@@ -43,6 +43,7 @@ interface ChapterPageProps {
 
 export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   const { chapterId, topicId } = useParams()
+  const navigate = useNavigate()
   const curriculum = useLearningStore((state) => state.curriculum)
   const loading = useLearningStore((state) => state.loading)
   const error = useLearningStore((state) => state.error)
@@ -144,7 +145,7 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   const topicUnavailable = topicError?.code === 'TOPIC_NOT_AVAILABLE' || topicError?.code === 'TOPIC_NOT_FOUND'
 
   return (
-    <div className="learn-layout">
+    <div className={`learn-layout${assistantMode ? ' with-assistant' : ''}${collapsed ? ' catalog-collapsed' : ''}`}>
       {collapsed ? <CatalogReveal onOpen={() => setCollapsed(false)} /> : null}
       {!collapsed ? (
         <aside className="catalog">
@@ -274,7 +275,12 @@ export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
           ) : null}
         </article>
       </div>
-      {assistantMode && topic ? <ChatPanel variant="inline" /> : null}
+      {assistantMode && topic ? (
+        <ChatPanel
+          variant="inline"
+          onCollapse={() => navigate(topicPath(chapter.id, topic.id, false))}
+        />
+      ) : null}
       {topic ? (
         <NotesDrawer
           open={notesOpen}
