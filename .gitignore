@@ -25,3 +25,6 @@ data/
 *.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
+
+# Local temporary files / screenshots
+.tmp/
