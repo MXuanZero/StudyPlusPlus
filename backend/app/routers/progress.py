@@ -20,12 +20,19 @@ def _chapter_topic_ids(chapter_id: str) -> list[str]:
     The content module is implemented in parallel; import lazily so this router
     remains importable while that work is in progress.
     """
-    try:
-        module = importlib.import_module("backend.app.services.content_loader")
-        getter = getattr(module, "get_topic_ids_for_chapter")
-        return [str(item) for item in getter(chapter_id)]
-    except Exception:
-        return []
+    for module_name in (
+        "backend.app.services.content_loader",
+        "app.services.content_loader",
+    ):
+        try:
+            module = importlib.import_module(module_name)
+            getter = getattr(module, "get_topic_ids_for_chapter")
+            return [str(item) for item in getter(chapter_id)]
+        except (ImportError, AttributeError):
+            continue
+        except Exception:
+            return []
+    return []
 
 
 @router.get("/progress")
