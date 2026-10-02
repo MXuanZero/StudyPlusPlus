@@ -203,10 +203,11 @@ const PROJECT = {
   phase: "T1 已完成 / 进入并行开发",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "开始 T2 / T3 / T6 / T9 并行开发"
+  nextAction: "等待 T2 / T4 / T6+T8 完成，Lead 同步推进 T9/T10"
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T3 完成：二阶仿真、指标、compare/presets API 与 30 个 pytest 全部通过；commit bd2012b/7a3c37d/96d164c。" },
   { date: "2026-10-02", text: "T1 完成：FastAPI 骨架、健康检查、SQLite 表结构、React/Vite 前端骨架、Vite 代理与 CORS 均已就绪。" },
   { date: "2026-10-02", text: "需求冻结，进入并行开发阶段；开始 T2 / T3 / T6 / T9。" },
   { date: "2026-10-02", text: "完成 v0.1 设计文档：PRD、技术方案、二阶系统模块详细设计、开发任务拆分。" },
@@ -291,19 +292,19 @@ const TASKS = [
     id: "T3",
     title: "二阶仿真计算服务",
     phase: "算法 / 后端",
-    status: "pending",
+    status: "completed",
     owner: "算法 / 后端智能体",
     deps: ["T1"],
     deliverable: "second_order.py、compute 路由、Pydantic schema 与 pytest 测试。",
     acceptance: "03 文档 6.1 节 TC-C01 至 TC-C08 全部通过。",
     subtasks: [
-      { text: "定义 simulate / compare / presets 请求与响应 schema", done: false },
-      { text: "实现阶跃、冲激、初始状态三类仿真（scipy.signal / solve_ivp）", done: false },
-      { text: "实现极点、阻尼分类与性能指标计算", done: false },
-      { text: "实现参数校验、错误码与 diagnostics", done: false },
-      { text: "实现 compare（最多 4 组）与 presets 接口", done: false },
-      { text: "编写并通过 TC-C01 至 TC-C08 的 pytest", done: false },
-      { text: "完成 T3 验收并更新 todo.html", done: false }
+      { text: "定义 simulate / compare / presets 请求与响应 schema", done: true },
+      { text: "实现阶跃、冲激、初始状态三类仿真（scipy.signal / solve_ivp）", done: true },
+      { text: "实现极点、阻尼分类与性能指标计算", done: true },
+      { text: "实现参数校验、错误码与 diagnostics", done: true },
+      { text: "实现 compare（最多 4 组）与 presets 接口", done: true },
+      { text: "编写并通过 TC-C01 至 TC-C08 的 pytest", done: true },
+      { text: "完成 T3 验收并更新 todo.html", done: true }
     ]
   },
   {
