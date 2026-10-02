@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T17 完成：引用提问后在原文划线；点击高亮跳回对应会话（/assistant?session=...）；删除会话同步删除划线；前端 build 通过（8bcfd5f）。" },
   { date: "2026-10-02", text: "兼容旧默认标题：标题为“新对话”的已有会话，下次发消息时也会按首条提问自动生成名称（2ff050d）。" },
   { date: "2026-10-02", text: "T16 完成：引用处显示“引用”标签；AI 标题去掉多余引号；首条提问自动生成会话名称（Live 用 AI 总结，Mock 用截断兜底）；全量 pytest 与前端 build 通过（043386a/de88e43）。" },
   { date: "2026-10-02", text: "T15 完成：引用后立即进入 AI 助教页；目录宽度可拖拽持久化；AI 标题统一；聊天去气泡改分割线 + 小字角色；前端 build 通过（6207946）。" },
@@ -582,6 +583,25 @@ const TASKS = [
       { text: "后端根据首条用户消息生成会话标题，Mock 模式使用截断兜底", done: true },
       { text: "新增标题生成测试并通过全量 pytest + 前端 build", done: true },
       { text: "完成 T16 验收并更新 todo.html", done: true }
+    ]
+  },
+  {
+    id: "T17",
+    title: "正文划线提问与会话回跳",
+    phase: "功能增强",
+    status: "completed",
+    owner: "Lead + 前端",
+    deps: ["T11", "T16"],
+    deliverable: "引用提问后在原文划线；点击划线跳回对应会话；删除会话同步取消划线。",
+    acceptance: "选中正文引用后原文出现高亮；已发送引用绑定会话 id；刷新后高亮仍在；点击高亮进入对应会话；删除会话后高亮消失。",
+    subtasks: [
+      { text: "记录选区在正文中的 start/end 字符偏移", done: true },
+      { text: "引用加入后立即在正文显示高亮标注", done: true },
+      { text: "发送消息时把标注关联到 session_id", done: true },
+      { text: "点击高亮跳转到 /assistant?session=... 并选中会话", done: true },
+      { text: "删除会话时同步删除该会话的正文高亮", done: true },
+      { text: "前端 build 通过，回归引用/分屏/会话历史", done: true },
+      { text: "完成 T17 验收并更新 todo.html", done: true }
     ]
   }
 ];
