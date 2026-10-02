@@ -2,9 +2,9 @@
 
 > 验收人：qa-dev（独立验收，未修改任何产品源码）
 > 验收日期：2026-10-02
-> 验收对象：`main` 分支，代码版本 `78a7a81`
-> 产出提交：验收测试 `e8af1ed`、API smoke 脚本 `78a7a81`、本报告（见文末 git 历史）
-> 结论：**有条件通过**。后端测试、前端构建、生产单端口与 API 契约全部通过；3 个低危问题、1 个中危错误格式偏差、1 个前端源码层求解器风险；浏览器级 E2E 未覆盖，需人工复核。
+> 验收对象：`main` 分支，代码版本 `b234a96`（Lead 修复 P1–P4 后的复验版本）
+> 产出提交：验收测试 `e8af1ed`、API smoke `78a7a81`、Lead 修复 `b1c3593`/`87eb81a`/`8bd1811`/`b234a96`、回归用例与报告更新提交（见附录 A）
+> 结论：**有条件通过**。P1–P4 已修复并复验；97/97 后端测试、前端构建、生产单端口与 API smoke 全部通过。仅剩 P5（低危字段命名）与浏览器级 E2E 未覆盖，需人工复核。
 
 ---
 
@@ -37,7 +37,7 @@
 
 | 文件 | 作用 |
 | --- | --- |
-| `backend/tests/test_acceptance.py` | 29 个独立验收测试：解析公式复算、API 契约、持久化、静态安全扫描 |
+| `backend/tests/test_acceptance.py` | 31 个独立验收测试：解析公式复算、API 契约、持久化、静态安全扫描、P1–P4 回归 |
 | `scripts/smoke_api.py` | 可重复运行的单端口 API smoke，69 项检查，不依赖真实 Key，自动清理临时数据 |
 | `docs/05_MVP验收报告.md` | 本报告 |
 
@@ -55,14 +55,14 @@ cd /home/mxuan/WorkSpace/StudyPlusPlus
 结果：
 
 ```text
-95 passed
+97 passed
 ==================== warnings summary ====================
 starlette/testclient.py:51
   DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated,
   use anyio.from_thread.BlockingPortal instead.
 ```
 
-- 原有测试 66 个 + 新增验收测试 29 个 = **95 passed**。
+- 原有测试 66 个 + 新增验收测试 31 个 = **97 passed**。
 - 仅有 1 个来自依赖 `starlette/anyio` 的弃用警告，无项目代码 warning。
 - 新增验收测试用临时 SQLite（`monkeypatch app_settings.db_path`），不污染 `data/studyplusplus.db`。
 
@@ -79,7 +79,7 @@ npm_config_cache="$PWD/../.npm-cache" npm run build
 | --- | --- | --- |
 | `dist/assets/index-*.js` | 650.22 kB | 201.71 kB |
 | `dist/assets/index-*.css` | 54.26 kB | 13.74 kB |
-| `dist/assets/WidgetRenderer-*.js`（Plotly 懒加载 chunk） | 4707.28 kB | 1427.23 kB |
+| `dist/assets/WidgetRenderer-*.js`（Plotly 懒加载 chunk） | 4707.21 kB | 1427.19 kB |
 | KaTeX 字体等 | 12–64 kB/文件 | — |
 
 构建耗时约 20.2 s。Plotly 被拆为独立懒加载 chunk，仅进入实验室时加载；Bundle 体积本身仍偏大，见“7. 遗留风险”。
@@ -116,6 +116,15 @@ compare(4 组)=42.1ms
 ```
 
 后端计算 P95 远低于 PRD 500ms 要求。前端收到数据后的图表渲染 < 300ms 属于浏览器指标，本次未覆盖。
+
+### 2.5 Lead 修复项复验（P1–P4）
+
+| 问题 | 修复 commit | 复验方法 | 结果 |
+| --- | --- | --- | --- |
+| P1 统一 422 错误体 | `b1c3593` | 6 类非法请求：progress status、空笔记、空白聊天、temperature=9、n_points 字符串、额外字段 | 全部 422 且 `detail={"code":"VALIDATION_ERROR","message":...,"errors":[...]}`，不再返回 detail 数组 |
+| P2 无阻尼 diagnostics | `87eb81a` | `step, ζ=0, ωn=1`，`t_end=20` 与 `t_end=60` | 两次均为 `["系统无阻尼，响应持续等幅振荡，不会收敛到稳态"]`，不再出现“增大 t_end” |
+| P3 失败流空 assistant | `8bd1811` | 配置假 Key + `httpx.MockTransport` 返回 401，流开始前报错 | SSE `meta → error`；history 仅 `[user]`，无空 assistant 行（回归用例 `test_failed_stream_removes_empty_assistant_placeholder`） |
+| P4 前端 DEV 求解器 | `b234a96` | `grep` 前端源码与 dist；`npm run build` | `frontend/src/mocks/secondOrder.ts` 已删除；src/dist 均无 `generateMockSimulation` / 求解器串；compute 只调用 `/api/v1/compute/*` |
 
 ---
 
@@ -182,7 +191,7 @@ compare(4 组)=42.1ms
 | Key 不返回前端明文 | 检查 settings/health/SSE 响应 | 只返回 `has_api_key`、`api_key_masked`、`key_source`；错误消息经 `sanitize_error_message` 脱敏 |
 | Key 不写 localStorage | 扫描 `frontend/src`；检查生产 dist | 设置页/客户端无持久化 Key；`localStorage` 仅 DEV mock chat 用于会话缓存，未存 Key |
 | 前端无 numpy/scipy | 扫描 `frontend/src` 与 `package.json` | 无依赖、无 import |
-| 生产 bundle 无求解器 | 扫描 `frontend/dist/*.js` | 不含 `generateMockSimulation`、`DEV-ONLY fallback` 字符串，DEV mock 被摇树排除 |
+| 前端无求解器（源码 + 构建） | 扫描 `frontend/src`、`package.json`、`frontend/dist/*.js` | `mocks/secondOrder.ts` 已删除；源码与 dist 均无 `generateMockSimulation` / JS 求解器字符串；package.json 无 numpy/scipy |
 | 供应商不写死 | 检查设置预设与 `llm.py` | deepseek/openai/ollama/custom 均可配置；Base URL 规范化 |
 | CORS | `config.py` | 仅 `127.0.0.1:5173`、`localhost:5173` |
 
@@ -226,40 +235,20 @@ compare(4 组)=42.1ms
 
 ---
 
-## 8. 问题与风险
+## 8. 问题处理结果与剩余风险
 
-### P1（中）Pydantic 校验错误不满足统一错误格式
+### 8.1 已修复并复验（resolved）
 
-- 文档要求：`docs/02` §5 “所有错误返回 `{"detail":{"code":"...","message":"..."}}`”。
-- 实测：Pydantic 校验类 422 返回 `detail` 数组，例如：
-  - `PUT /api/v1/progress/ch05-01 {"status":"bogus"}` → `detail:[{type:literal_error,...}]`
-  - `POST /api/v1/notes {"content":""}` → `string_too_short`
-  - `POST /chat/.../stream {"content":"   "}` → `value_error`
-  - `PUT /settings/llm {"temperature":9}` → `less_than_equal`
-  - `POST /simulate {"n_points":"x"}` / 额外字段 → `int_parsing` / `extra_forbidden`
-- 影响：前端 `parseError` 对数组 detail 只能退化为 `HTTP_ERROR` / “请求失败”，用户看不到具体原因。
-- 建议：由 Lead 决定是否统一异常处理器；本报告不修改产品源码。
+| 编号 | 问题 | 级别 | 修复 commit | 复验证据 |
+| --- | --- | --- | --- | --- |
+| P1 | Pydantic 422 不满足统一错误包络 | 中 | `b1c3593` | 6 类非法请求均返回 `{"code":"VALIDATION_ERROR","message","errors"}`；旧 `detail:[...]` 行为已消除 |
+| P2 | 无阻尼仍提示“增大 t_end” | 低 | `87eb81a` | `t_end=20/60` 均返回“系统无阻尼，响应持续等幅振荡，不会收敛到稳态” |
+| P3 | 流式失败留下空 assistant 行 | 低 | `8bd1811` | 401 且无 delta 时 history 仅 `[user]`；有部分增量时仍保留 partial 内容 |
+| P4 | 前端源码含 DEV-only JS 求解器 | 风险 | `b234a96` | `frontend/src/mocks/secondOrder.ts` 删除；源码/生产 dist 均无求解器；所有仿真走后端 |
 
-### P2（低）无阻尼系统的诊断文案误导
+### 8.2 剩余问题（open）
 
-- 复现：`step, ζ=0, ωn=1`，即使 `t_end=60`，`diagnostics` 仍为 `["当前时间范围可能不足以观察到稳态，建议增大 t_end"]`。
-- 原因：无阻尼永远不进入 ±5% 稳态带，触发“t_end 太短”分支。
-- 影响：初学者会误以为增大时间范围即可收敛。
-- 建议：对 `classification == "undamped"` 改为“无阻尼等幅振荡，不存在调节时间”。
-
-### P3（低）流式失败后留下空 assistant 消息
-
-- 复现：上游返回 401 时 SSE 为 `meta → error`，但 `chat_messages` 中存在 `role=assistant, content=""` 的行。
-- 影响：刷新历史后前端可能渲染空气泡；多轮上下文虽会跳过空内容，但数据不够干净。
-- 建议：失败时删除占位消息，或保留 `error_code` 并明确渲染为错误占位。
-
-### P4（风险）前端源码含 DEV-only JS 求解器
-
-- `frontend/src/mocks/secondOrder.ts` 在开发模式后端不可用时用 JS `Math.*` 复算响应，属于前端求解器实现。
-- 生产构建已确认不含该模块（dist 中无 `generateMockSimulation` / `DEV-ONLY fallback`），FR-COMP-03 在生产运行时满足。
-- 若审计口径为“源码级不得存在任何求解器”，则不合格；建议后续用固定 JSON fixture 替换该 mock 求解器。
-
-### P5（低）脱敏字段命名与任务描述不一致
+#### P5（低）脱敏字段命名与任务描述不一致
 
 - 实现返回 `api_key_masked`；`docs/04` T5/T8 描述写作 `masked_api_key`。
 - 前端两种字段都兼容，功能不受影响；建议文档或实现统一命名。
@@ -268,26 +257,27 @@ compare(4 组)=42.1ms
 
 ## 9. 遗留风险与后续建议
 
-1. 增加统一异常处理器，保证所有 4xx 均为 `{detail:{code,message}}`；
-2. 修复无阻尼诊断与失败流占位消息；
-3. 用固定数据 mock 替换 DEV JS 求解器，彻底满足“前端无求解器”审计；
-4. 引入 Playwright（或可用 headless 浏览器）补齐 TC-U01–TC-U06 与白底视觉回归；
-5. Plotly chunk 4.7 MB，建议评估按需加载/轻量绘图方案；
-6. 设置字段命名文档化统一；
-7. 真实供应商连通性需在有 Key 的环境手工验证（本报告不覆盖）。
+1. 统一 P5 脱敏字段命名（低危，文档或实现二选一即可）；
+2. 引入 Playwright（或可用 headless 浏览器）补齐 TC-U01–TC-U06、白底视觉与 KaTeX 渲染回归；
+3. 前端图表收到数据后 < 300ms 渲染、AI 首字延迟等浏览器指标未测量；
+4. Plotly chunk 4.7 MB，建议评估按需加载/轻量绘图方案；
+5. 真实供应商连通性需在有 Key 的环境手工验证（本报告按要求不覆盖）；
+6. 无真实 Key 的 live 协议路径已由 `httpx.MockTransport` 测试覆盖，但真实网络/鉴权仍需人工抽测。
 
 ---
 
 ## 10. 验收结论
 
-- **后端**：95/95 pytest 通过，计算正确性经解析公式独立复算；**通过**。
-- **前端**：`npm run build` 成功，无 TypeScript 错误；**构建通过**。
+- **后端**：97/97 pytest 通过，计算正确性经解析公式独立复算；P1–P4 已修复并回归；**通过**。
+- **前端**：`npm run build` 成功，无 TypeScript 错误；P4 求解器已移除；**构建通过**。
 - **生产单端口**：SPA fallback 与 API 均 200，`smoke_api.py` 69/69；**通过**。
-- **API 契约**：compute/settings/progress/notes/chat Mock 全通；**通过**（Pydantic 错误格式偏差除外）。
-- **安全**：无真实 Key、无 Key 写 localStorage、生产无前端求解器；**通过**（源码层 DEV mock 求解器为风险项）。
+- **API 契约**：compute/settings/progress/notes/chat Mock 全通；P1 统一错误包络已复验；P3 失败流历史无空 assistant；**通过**。
+- **安全**：无真实 Key、无 Key 写 localStorage、前端源码与生产构建均无求解器；**通过**。
 - **浏览器 E2E**：未覆盖，需人工复核；本轮不伪造通过。
+- **剩余**：仅 P5 低危字段命名差异。
 
-**综合：有条件通过。** 建议 Lead 评估 P1–P5 后再决定是否最终签字；浏览器交互与视觉验收需另行人工完成。
+**综合：有条件通过。** P1–P4 已处理完毕；浏览器交互与视觉验收需另行人工完成，P5 建议顺手统一命名。
+
 
 ---
 
@@ -295,9 +285,15 @@ compare(4 组)=42.1ms
 
 | 提交 | 内容 |
 | --- | --- |
-| `e8af1ed` | `test(acceptance): add independent MVP acceptance tests`（`backend/tests/test_acceptance.py`，29 tests） |
+| `e8af1ed` | `test(acceptance): add independent MVP acceptance tests`（`backend/tests/test_acceptance.py` 初版 29 tests） |
 | `78a7a81` | `test(smoke): add repeatable single-port API smoke script`（`scripts/smoke_api.py`，69 checks） |
-| 本报告提交 | `docs(acceptance): add MVP acceptance report`（`docs/05_MVP验收报告.md`） |
+| `f6986f1` | `docs(acceptance): add MVP acceptance report`（首版报告） |
+| `b1c3593` | `fix(api): unify request validation errors into detail envelope`（P1） |
+| `87eb81a` | `fix(compute): clarify undamped steady-state diagnostics`（P2） |
+| `8bd1811` | `fix(chat): avoid empty assistant bubble when stream fails early`（P3） |
+| `b234a96` | `refactor(frontend): remove DEV-only second-order solver fallback`（P4） |
+| `4838c15` | `test(acceptance): add P1-P4 regression checks`（`backend/tests/test_acceptance.py` 增至 31 tests） |
+| 本次报告更新提交 | `docs(acceptance): update MVP report for resolved P1-P4` |
 
 ## 附录 B：关键命令
 
