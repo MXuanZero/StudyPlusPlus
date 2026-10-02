@@ -200,10 +200,10 @@
    ========================================================= */
 const PROJECT = {
   name: "StudyPlusPlus",
-  phase: "T2/T3/T6 已完成；T4/T7 前端进行中",
+  phase: "T2/T3/T4/T5/T6/T7 已完成；T8/T9 前端进行中",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "等待 T4/T5/T7 前端完成，Lead 继续 T8/T9/T10"
+  nextAction: "等待 T8/T9 前端完成，随后进入 T10 验收"
 };
 
 const UPDATE_LOG = [
@@ -313,40 +313,40 @@ const TASKS = [
     id: "T4",
     title: "二阶可视化实验室",
     phase: "前端",
-    status: "pending",
+    status: "completed",
     owner: "前端智能体",
     deps: ["T2", "T3"],
     deliverable: "WidgetRenderer、SecondOrderLab、时域图、极点图、指标表、对比与导出。",
     acceptance: "03 文档 6.2 节 TC-U01 至 TC-U06 全部通过；计算全部走后端。",
     subtasks: [
-      { text: "实现 WidgetRenderer 注册机制", done: false },
-      { text: "实现 SecondOrderLab 控制区：模式、ζ、ωn、初值、时间范围、预设", done: false },
-      { text: "实现 TimeResponsePlot 时域响应图", done: false },
-      { text: "实现 PoleZeroMap 极点图", done: false },
-      { text: "实现 MetricsTable 指标表（数值值 + 近似公式值）", done: false },
-      { text: "实现最多 4 组对比模式与 CSV 导出", done: false },
-      { text: "实现 150ms debounce、请求状态与错误提示", done: false },
-      { text: "在 ch05 各知识点正确挂载组件", done: false },
-      { text: "完成 T4 验收并更新 todo.html", done: false }
+      { text: "实现 WidgetRenderer 注册机制", done: true },
+      { text: "实现 SecondOrderLab 控制区：模式、ζ、ωn、初值、时间范围、预设", done: true },
+      { text: "实现 TimeResponsePlot 时域响应图", done: true },
+      { text: "实现 PoleZeroMap 极点图", done: true },
+      { text: "实现 MetricsTable 指标表（数值值 + 近似公式值）", done: true },
+      { text: "实现最多 4 组对比模式与 CSV 导出", done: true },
+      { text: "实现 150ms debounce、请求状态与错误提示", done: true },
+      { text: "在 ch05 各知识点正确挂载组件", done: true },
+      { text: "完成 T4 验收并更新 todo.html", done: true }
     ]
   },
   {
     id: "T5",
     title: "课程阅读与公式渲染",
     phase: "前端",
-    status: "pending",
+    status: "completed",
     owner: "前端智能体",
     deps: ["T1", "T2"],
     deliverable: "首页、章节页、目录树、Markdown/KaTeX 渲染、折叠推导与上下节导航。",
     acceptance: "第 5 章可完整阅读；公式渲染正确；规划中章节不可进入。",
     subtasks: [
-      { text: "实现 HomePage：欢迎语、课程总览、进度占位", done: false },
-      { text: "实现 ChapterPage：左侧目录树 + 中间正文布局", done: false },
-      { text: "实现 MarkdownRenderer：react-markdown + KaTeX", done: false },
-      { text: "实现 :::details 推导折叠块渲染", done: false },
-      { text: "实现 [[widget:...]] 占位与 WidgetRenderer 协作", done: false },
-      { text: "实现上一节 / 下一节导航与 planned 状态", done: false },
-      { text: "完成 T5 验收并更新 todo.html", done: false }
+      { text: "实现 HomePage：欢迎语、课程总览、进度占位", done: true },
+      { text: "实现 ChapterPage：左侧目录树 + 中间正文布局", done: true },
+      { text: "实现 MarkdownRenderer：react-markdown + KaTeX", done: true },
+      { text: "实现 :::details 推导折叠块渲染", done: true },
+      { text: "实现 [[widget:...]] 占位与 WidgetRenderer 协作", done: true },
+      { text: "实现上一节 / 下一节导航与 planned 状态", done: true },
+      { text: "完成 T5 验收并更新 todo.html", done: true }
     ]
   },
   {
@@ -372,19 +372,19 @@ const TASKS = [
     id: "T7",
     title: "前端全局聊天",
     phase: "前端 / AI",
-    status: "pending",
+    status: "completed",
     owner: "前端智能体",
     deps: ["T6"],
     deliverable: "ChatDock、ChatPanel、流式消息、历史会话与上下文发送。",
     acceptance: "任意页面可打开聊天；流式与历史持久化正常；Mock 模式可完成问答。",
     subtasks: [
-      { text: "实现 ChatDock 全局悬浮按钮", done: false },
-      { text: "实现 ChatPanel 右侧滑出对话面板", done: false },
-      { text: "实现流式打字效果与停止生成", done: false },
-      { text: "实现新会话、历史切换与删除", done: false },
-      { text: "发送消息时携带当前章节 / 知识点上下文", done: false },
-      { text: "刷新页面后历史消息仍可读取", done: false },
-      { text: "完成 T7 验收并更新 todo.html", done: false }
+      { text: "实现 ChatDock 全局悬浮按钮", done: true },
+      { text: "实现 ChatPanel 右侧滑出对话面板", done: true },
+      { text: "实现流式打字效果与停止生成", done: true },
+      { text: "实现新会话、历史切换与删除", done: true },
+      { text: "发送消息时携带当前章节 / 知识点上下文", done: true },
+      { text: "刷新页面后历史消息仍可读取", done: true },
+      { text: "完成 T7 验收并更新 todo.html", done: true }
     ]
   },
   {
