@@ -5,7 +5,9 @@ import { ApiError } from '../api/client'
 import type { TopicDetail } from '../api/types'
 import { CatalogTree } from '../components/layout/CatalogTree'
 import { MarkdownRenderer } from '../components/markdown/MarkdownRenderer'
+import { NotesDrawer } from '../components/notes/NotesDrawer'
 import { ProgressControl } from '../components/progress/ProgressControl'
+import { Button } from '../components/ui/Button'
 import { CenteredSpinner } from '../components/ui/Spinner'
 import { useLearningStore } from '../store/learningStore'
 import { useProgressStore } from '../store/progressStore'
@@ -41,6 +43,7 @@ export function ChapterPage() {
   const chapterProgress = useProgressStore((state) => (chapterId ? state.chapterProgress[chapterId] : undefined))
 
   const [collapsed, setCollapsed] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
   const [topic, setTopic] = useState<TopicDetail | null>(null)
   const [topicLoading, setTopicLoading] = useState(false)
   const [topicError, setTopicError] = useState<{ code: string; message: string } | null>(null)
@@ -193,6 +196,10 @@ export function ChapterPage() {
                     <span className="small">{chapterProgress.percent}%</span>
                   </span>
                 ) : null}
+                <span className="spacer" />
+                <Button size="sm" onClick={() => setNotesOpen(true)}>
+                  笔记
+                </Button>
               </div>
               <h1 className="topic-title">{topic.title}</h1>
               <p className="topic-summary">{topic.summary}</p>
@@ -232,6 +239,14 @@ export function ChapterPage() {
           ) : null}
         </article>
       </div>
+      {topic ? (
+        <NotesDrawer
+          open={notesOpen}
+          topicId={topic.id}
+          topicTitle={topic.title}
+          onClose={() => setNotesOpen(false)}
+        />
+      ) : null}
     </div>
   )
 }
