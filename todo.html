@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "精简 AI 入口与面板控制：移除工具栏 AI 分屏按钮；右下角悬浮按钮统一名称 AI 助教；inline 面板折叠按钮改为图标 » + 悬停提示（26e34ee）。" },
   { date: "2026-10-02", text: "修复 AI 伪分屏：移除 inline 面板 fixed 覆盖定位，改为 flex 占位 + sticky；拖宽 AI 时课程正文同步移动、重排，图表通过 ResizeObserver 调整尺寸；面板顶部新增折叠按钮，返回课程后可从 AI 分屏入口重新展开。前端 build、SPA 入口与静态资源检查通过；当前无可用浏览器，拖拽/折叠视觉复核待完成。" },
   { date: "2026-10-02", text: "增加双保险：ChatPanel drawer 模式在所有 /learn 路由直接拒绝渲染，彻底避免旧抽屉出现在课程页面（83e30b4）。" },
   { date: "2026-10-02", text: "彻底禁止 /learn 页面出现旧抽屉：所有知识点页 AI 按钮只进入 /assistant 分屏；index.html 增加 no-cache，避免重建后浏览器仍加载旧 JS（0fc100b/dfb2f1a）。" },
