@@ -1,4 +1,14 @@
-"""Placeholder for the curriculum router. To be implemented in a following task."""
+"""Course curriculum endpoint."""
+from __future__ import annotations
+
 from fastapi import APIRouter
 
-router = APIRouter(tags=["curriculum"])
+from ..services.content_loader import get_curriculum
+
+router = APIRouter(prefix="/curriculum", tags=["curriculum"])
+
+
+@router.get("")
+def read_curriculum() -> dict:
+    """Return the complete two-volume curriculum tree."""
+    return get_curriculum()
