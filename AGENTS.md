@@ -28,4 +28,5 @@
 - 一个提交只做一件事，不要把无关改动混在同一提交中。
 - 禁止提交：`.env`、真实 API Key、`data/*.db`、`.venv/`、`node_modules/`、构建产物、`.npm-cache/`。
 - 每完成一个任务，必须同步更新 `todo.html`，并把 `todo.html` 的更新一起提交。
+- `todo.html` 由 Lead 统一维护，避免多个子智能体并发修改；子智能体完成任务后向 Lead 汇报改动文件、验证命令与 Git commit hash，由 Lead 更新并提交进度看板。
 - 智能体完成任务汇报时必须包含：改动文件、验证命令与结果、Git commit hash。
