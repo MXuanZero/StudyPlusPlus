@@ -51,6 +51,11 @@ interface SecondOrderLabProps {
   defaultCompare?: boolean
   showMetrics?: boolean
   showPhasePortrait?: boolean
+  /** 来自 topic widget 配置的默认参数。 */
+  defaultZeta?: number
+  defaultOmegaN?: number
+  /** 只展示配置中列出的预设 key。 */
+  presetKeys?: string[]
 }
 
 function presetLabel(preset: Preset): string {
@@ -66,20 +71,23 @@ export function SecondOrderLab({
   defaultCompare = false,
   showMetrics = true,
   showPhasePortrait = true,
+  defaultZeta = 0.5,
+  defaultOmegaN = 2,
+  presetKeys,
 }: SecondOrderLabProps) {
   const pushToast = useAppStore((state) => state.pushToast)
 
   const [mode, setMode] = useState<InputType>(defaultMode)
-  const [zeta, setZeta] = useState(0.5)
-  const [omegaN, setOmegaN] = useState(2)
+  const [zeta, setZeta] = useState(defaultZeta)
+  const [omegaN, setOmegaN] = useState(defaultOmegaN)
   const [y0, setY0] = useState(1)
   const [v0, setV0] = useState(0)
   const [tEnd, setTEnd] = useState(20)
 
   const [compareEnabled, setCompareEnabled] = useState(defaultCompare)
   const [runs, setRuns] = useState<CompareRun[]>([
-    { id: makeId('run'), zeta: 0.5, omega_n: 2, color: PALETTE[0] },
-    { id: makeId('run'), zeta: 1, omega_n: 2, color: PALETTE[1] },
+    { id: makeId('run'), zeta: defaultZeta, omega_n: defaultOmegaN, color: PALETTE[0] },
+    { id: makeId('run'), zeta: 1, omega_n: defaultOmegaN, color: PALETTE[1] },
   ])
 
   const [presets, setPresets] = useState<Preset[]>(FALLBACK_PRESETS)
@@ -89,6 +97,11 @@ export function SecondOrderLab({
   const [error, setError] = useState<string | null>(null)
   const [showAnnotations, setShowAnnotations] = useState(true)
   const [metricsIndex, setMetricsIndex] = useState(0)
+
+  const availablePresets = useMemo(
+    () => (presetKeys?.length ? presets.filter((preset) => preset.key && presetKeys.includes(preset.key)) : presets),
+    [presetKeys, presets],
+  )
 
   useEffect(() => {
     const controller = new AbortController()
@@ -350,7 +363,7 @@ export function SecondOrderLab({
           <div className="lab-control-group">
             <div className="group-title">预设案例</div>
             <div className="preset-grid">
-              {presets.map((preset) => (
+              {availablePresets.map((preset) => (
                 <Button key={preset.key ?? presetLabel(preset)} size="sm" onClick={() => applyPreset(preset)} title={preset.description}>
                   {presetLabel(preset)}
                 </Button>
