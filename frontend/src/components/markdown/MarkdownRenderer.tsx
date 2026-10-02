@@ -1,11 +1,16 @@
-import { useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import type { WidgetConfig } from '../../api/types'
-import { WidgetRenderer } from '../widgets/WidgetRenderer'
 import { DetailsBlock } from './DetailsBlock'
+
+/** Plotly 体积较大，仅在正文真正出现交互组件时动态加载。 */
+const LazyWidgetRenderer = lazy(async () => {
+  const module = await import('../widgets/WidgetRenderer')
+  return { default: module.WidgetRenderer }
+})
 
 type Segment =
   | { type: 'markdown'; content: string }
@@ -59,7 +64,7 @@ export function tokenizeMarkdown(markdown: string): Segment[] {
 }
 
 const MARKDOWN_COMPONENTS: Components = {
-  a: ({ children, ...props }) => (
+  a: ({ node: _node, children, ...props }) => (
     <a {...props} target="_blank" rel="noreferrer noopener">
       {children}
     </a>
@@ -108,7 +113,18 @@ export function MarkdownRenderer({ markdown, widgets = [], stripLeadingHeading =
           )
         }
         const widget = widgetMap.get(segment.id) ?? { id: segment.id, type: segment.id }
-        return <WidgetRenderer key={`${index}-${segment.id}`} widget={widget} />
+        return (
+          <Suspense
+            key={`${index}-${segment.id}`}
+            fallback={
+              <div className="widget-slot">
+                <div className="widget-unknown">交互组件加载中…</div>
+              </div>
+            }
+          >
+            <LazyWidgetRenderer widget={widget} />
+          </Suspense>
+        )
       })}
     </div>
   )
