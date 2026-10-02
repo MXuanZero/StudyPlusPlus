@@ -200,13 +200,14 @@
    ========================================================= */
 const PROJECT = {
   name: "StudyPlusPlus",
-  phase: "T1 已完成 / 进入并行开发",
+  phase: "T2/T4/T6 进行中；T3 已完成",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "等待 T2 / T4 / T6+T8 完成，Lead 同步推进 T9/T10"
+  nextAction: "完成 T2/T4/T7 前端，Lead 继续 T9/T10"
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T6+T8 后端完成：LLM 客户端、Mock、Key 脱敏、设置接口、SSE 会话持久化；66 个后端测试通过（e88c34b/2797183/5b84177）。" },
   { date: "2026-10-02", text: "T3 完成：二阶仿真、指标、compare/presets API 与 30 个 pytest 全部通过；commit bd2012b/7a3c37d/96d164c。" },
   { date: "2026-10-02", text: "T1 完成：FastAPI 骨架、健康检查、SQLite 表结构、React/Vite 前端骨架、Vite 代理与 CORS 均已就绪。" },
   { date: "2026-10-02", text: "需求冻结，进入并行开发阶段；开始 T2 / T3 / T6 / T9。" },
@@ -351,19 +352,19 @@ const TASKS = [
     id: "T6",
     title: "AI 对话服务（后端）",
     phase: "后端 / AI",
-    status: "pending",
+    status: "completed",
     owner: "后端智能体",
     deps: ["T1"],
     deliverable: "llm.py、prompt.py、chat 路由、SSE 流式接口、会话与历史持久化。",
     acceptance: "无 Key 时返回 Mock；配置 DeepSeek 后流式正常；错误不泄露 Key。",
     subtasks: [
-      { text: "实现 OpenAI 兼容流式客户端与 Base URL 规范化", done: false },
-      { text: "实现 DeepSeek / OpenAI / Ollama / custom 预设与配置读取", done: false },
-      { text: "实现 Mock 模式与错误事件格式", done: false },
-      { text: "实现 tutor_system.md 提示词与当前章节上下文注入", done: false },
-      { text: "实现会话 CRUD 与消息持久化", done: false },
-      { text: "实现 POST /chat/sessions/{id}/stream（meta → delta* → done）", done: false },
-      { text: "完成 T6 验收并更新 todo.html", done: false }
+      { text: "实现 OpenAI 兼容流式客户端与 Base URL 规范化", done: true },
+      { text: "实现 DeepSeek / OpenAI / Ollama / custom 预设与配置读取", done: true },
+      { text: "实现 Mock 模式与错误事件格式", done: true },
+      { text: "实现 tutor_system.md 提示词与当前章节上下文注入", done: true },
+      { text: "实现会话 CRUD 与消息持久化", done: true },
+      { text: "实现 POST /chat/sessions/{id}/stream（meta → delta* → done）", done: true },
+      { text: "完成 T6 验收并更新 todo.html", done: true }
     ]
   },
   {
@@ -389,18 +390,18 @@ const TASKS = [
     id: "T8",
     title: "设置与 LLM 配置",
     phase: "后端 + 前端",
-    status: "pending",
+    status: "in_progress",
     owner: "后端 + 前端智能体",
     deps: ["T6"],
     deliverable: "LLM 设置接口、设置页、Key 脱敏、连接测试、恢复默认。",
     acceptance: "默认 DeepSeek；可切换任意 OpenAI 兼容地址 / Ollama；代码无写死供应商。",
     subtasks: [
-      { text: "实现 GET / PUT / test / reset LLM 设置接口", done: false },
+      { text: "实现 GET / PUT / test / reset LLM 设置接口", done: true },
       { text: "实现设置页：provider、base_url、model、api_key、temperature、max_tokens", done: false },
-      { text: "实现 API Key 脱敏显示与“留空不修改”逻辑", done: false },
+      { text: "实现 API Key 脱敏显示与“留空不修改”逻辑", done: true },
       { text: "实现测试连接按钮与结果反馈", done: false },
-      { text: "实现恢复默认 DeepSeek 配置", done: false },
-      { text: "全文检查无硬编码 Key / 无写死仅 DeepSeek 逻辑", done: false },
+      { text: "实现恢复默认 DeepSeek 配置", done: true },
+      { text: "全文检查无硬编码 Key / 无写死仅 DeepSeek 逻辑", done: true },
       { text: "完成 T8 验收并更新 todo.html", done: false }
     ]
   },
@@ -408,13 +409,13 @@ const TASKS = [
     id: "T9",
     title: "进度与笔记",
     phase: "全栈",
-    status: "pending",
+    status: "in_progress",
     owner: "全栈智能体",
     deps: ["T1"],
     deliverable: "学习进度接口与 UI、章节百分比、笔记 CRUD 与持久化。",
     acceptance: "标记完成后目录树显示状态；重启后进度和笔记不丢失。",
     subtasks: [
-      { text: "实现进度 GET / PUT 接口与章节百分比", done: false },
+      { text: "实现进度 GET / PUT 接口与章节百分比", done: true },
       { text: "实现知识点状态切换控件", done: false },
       { text: "实现目录树完成状态展示", done: false },
       { text: "实现笔记新增、编辑、删除接口与 UI", done: false },
