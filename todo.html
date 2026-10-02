@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "增加双保险：ChatPanel drawer 模式在所有 /learn 路由直接拒绝渲染，彻底避免旧抽屉出现在课程页面（83e30b4）。" },
   { date: "2026-10-02", text: "彻底禁止 /learn 页面出现旧抽屉：所有知识点页 AI 按钮只进入 /assistant 分屏；index.html 增加 no-cache，避免重建后浏览器仍加载旧 JS（0fc100b/dfb2f1a）。" },
   { date: "2026-10-02", text: "明确分屏入口：知识点页面右下角 AI 悬浮按钮改为直接进入 /assistant 分屏页，不再弹出旧右侧抽屉；仅首页/设置等页面使用抽屉（7375126）。" },
   { date: "2026-10-02", text: "修复 T13 反馈：目录滑条取消圆角；分屏 AI 改为固定覆盖右侧，不再挤压课程正文；build 通过（48c7781）。" },
