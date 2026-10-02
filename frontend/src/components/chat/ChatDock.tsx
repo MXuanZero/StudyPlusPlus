@@ -1,43 +1,65 @@
+import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useChatStore } from '../../store/chatStore'
 import { ChatPanel } from './ChatPanel'
+
+function normalizePath(pathname: string): string {
+  return pathname.replace(/\/+$/, '') || '/'
+}
 
 export function ChatDock() {
   const location = useLocation()
   const navigate = useNavigate()
   const open = useChatStore((state) => state.open)
   const togglePanel = useChatStore((state) => state.togglePanel)
+  const closePanel = useChatStore((state) => state.closePanel)
 
-  const assistantRoute = location.pathname.endsWith('/assistant')
-  // /learn/:chapterId/:topicId（不含 /assistant）：知识点页面。
-  const topicPage = /^\/learn\/[^/]+\/[^/]+$/.test(location.pathname)
+  const path = normalizePath(location.pathname)
+  const segments = path.split('/').filter(Boolean)
+  const isLearnPage = segments[0] === 'learn'
+  const isAssistantRoute = path.endsWith('/assistant')
+  // /learn/:chapterId/:topicId：有具体知识点，可进入分屏。
+  const isTopicPage = isLearnPage && !isAssistantRoute && segments.length >= 3
+
+  // 离开分屏路由时，关闭可能残留的抽屉状态；/learn 页面不再显示抽屉。
+  useEffect(() => {
+    if (isLearnPage) closePanel()
+  }, [closePanel, isLearnPage])
 
   // 分屏页面已有常驻 AI 面板，不再显示悬浮按钮，避免重复入口。
-  if (assistantRoute) return null
+  if (isAssistantRoute) return null
 
-  const handleClick = () => {
-    if (topicPage) {
-      // 知识点页面不再弹出右侧抽屉，直接进入课程 + AI 分屏页面。
-      navigate(`${location.pathname}/assistant`)
-      return
-    }
-    togglePanel()
+  // 任何 /learn 页面都不渲染旧抽屉；知识点页面的悬浮按钮只负责进入分屏。
+  if (isLearnPage) {
+    return (
+      <button
+        type="button"
+        className="chat-dock"
+        aria-label={isTopicPage ? '进入 AI 分屏学习页面' : '打开课程后使用 AI 分屏'}
+        onClick={() => {
+          if (isTopicPage) navigate(`${path}/assistant`)
+        }}
+        title={isTopicPage ? 'AI 分屏' : '打开知识点后使用 AI 分屏'}
+      >
+        ✦
+        <span className="dock-label">AI 分屏</span>
+      </button>
+    )
   }
 
-  const label = topicPage ? 'AI 分屏' : 'AI 助教'
   return (
     <>
       <button
         type="button"
         className="chat-dock"
-        aria-label={topicPage ? '进入 AI 分屏学习页面' : open ? '收起 AI 助教' : '打开 AI 助教'}
-        aria-expanded={topicPage ? undefined : open}
-        onClick={handleClick}
+        aria-label={open ? '收起 AI 助教' : '打开 AI 助教'}
+        aria-expanded={open}
+        onClick={togglePanel}
       >
         ✦
-        <span className="dock-label">{label}</span>
+        <span className="dock-label">AI 助教</span>
       </button>
-      {topicPage ? null : <ChatPanel />}
+      <ChatPanel />
     </>
   )
 }
