@@ -193,7 +193,7 @@ def test_markdown_uses_required_format_and_docs_formulas():
     for filename, snippets in expected_snippets.items():
         text = (content_dir / filename).read_text(encoding="utf-8")
         assert text.startswith("---\n"), filename
-        assert ":details" not in text or ":::details" in text, filename
+        assert ":::details" in text, filename
         assert "[[widget:" in text, filename
         for snippet in snippets:
             assert snippet in text, (filename, snippet)
