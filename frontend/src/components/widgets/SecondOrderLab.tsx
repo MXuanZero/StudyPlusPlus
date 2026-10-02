@@ -98,10 +98,15 @@ export function SecondOrderLab({
   const [showAnnotations, setShowAnnotations] = useState(true)
   const [metricsIndex, setMetricsIndex] = useState(0)
 
-  const availablePresets = useMemo(
-    () => (presetKeys?.length ? presets.filter((preset) => preset.key && presetKeys.includes(preset.key)) : presets),
-    [presetKeys, presets],
-  )
+  // 配置中的预设排在最前，但保留后端全部预设（含“不稳定”），方便验证 TC-U02。
+  const availablePresets = useMemo(() => {
+    if (!presetKeys?.length) return presets
+    const configured = presetKeys
+      .map((key) => presets.find((preset) => preset.key === key))
+      .filter((preset): preset is Preset => Boolean(preset))
+    const rest = presets.filter((preset) => !preset.key || !presetKeys.includes(preset.key))
+    return [...configured, ...rest]
+  }, [presetKeys, presets])
 
   useEffect(() => {
     const controller = new AbortController()

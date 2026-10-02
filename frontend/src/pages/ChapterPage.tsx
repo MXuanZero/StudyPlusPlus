@@ -53,6 +53,7 @@ export function ChapterPage() {
     let active = true
     setTopicLoading(true)
     setTopicError(null)
+    setTopic(null)
     fetchTopic(targetTopicId)
       .then((result) => {
         if (active) setTopic(result)
