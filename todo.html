@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T11 完成：课程正文选中引用到 AI、pendingQuotes localStorage 记忆、已发送引用后端持久化并注入提示词；前端 build 与 quotes 接口 smoke 通过（6935e0b / 93eb4e7 / bc6571f / e6ad3c1 / 315f383）。" },
   { date: "2026-10-02", text: "新增 T11：课程正文引用到 AI 助教。后端 quotes 持久化与 prompt 注入已完成（6935e0b）；前端引用交互由 frontend-dev 开发中。" },
   { date: "2026-10-02", text: "新增 start.sh 一键启动脚本：默认生产模式按需构建并单端口启动，--dev 启动 FastAPI reload + Vite；已验证生产与开发模式均正常。" },
   { date: "2026-10-02", text: "T10 自动化验收通过：97 tests passed；前端 build 通过；生产单端口 smoke 69/69；P1–P4 已修复（b1c3593/87eb81a/8bd1811/b234a96，报告 fa913af）。剩余人工浏览器复核。" },
@@ -455,7 +456,7 @@ const TASKS = [
     id: "T11",
     title: "课程正文引用到 AI 助教",
     phase: "功能增强",
-    status: "in_progress",
+    status: "completed",
     owner: "Lead + 前端智能体",
     deps: ["T7"],
     deliverable: "选中正文引用到 AI、引用持久化、历史消息显示引用、后端提示词注入。",
@@ -463,13 +464,13 @@ const TASKS = [
     subtasks: [
       { text: "后端 ChatQuote schema、持久化与 stream 请求支持（Lead）", done: true },
       { text: "后端 prompt 注入引用内容，让 AI 结合引用回答（Lead）", done: true },
-      { text: "正文选中文本后出现“引用到 AI”浮动按钮", done: false },
-      { text: "pendingQuotes 加入 chatStore 并持久化到 localStorage", done: false },
-      { text: "聊天面板展示待发送引用卡片，可删除 / 清空", done: false },
-      { text: "发送消息携带 quotes，发送成功后清空待发送引用", done: false },
-      { text: "用户消息气泡与历史消息展示引用块和来源", done: false },
-      { text: "npm run build + 带 quotes 的真实接口 smoke + 安全与持久化检查", done: false },
-      { text: "完成 T11 验收并更新 todo.html", done: false }
+      { text: "正文选中文本后出现“引用到 AI”浮动按钮", done: true },
+      { text: "pendingQuotes 加入 chatStore 并持久化到 localStorage", done: true },
+      { text: "聊天面板展示待发送引用卡片，可删除 / 清空", done: true },
+      { text: "发送消息携带 quotes，发送成功后清空待发送引用", done: true },
+      { text: "用户消息气泡与历史消息展示引用块和来源", done: true },
+      { text: "npm run build + 带 quotes 的真实接口 smoke + 安全与持久化检查", done: true },
+      { text: "完成 T11 验收并更新 todo.html", done: true }
     ]
   }
 ];
