@@ -814,3 +814,18 @@ body.is-col-resizing .catalog-resizer::after { background: var(--accent); }
   from { opacity: 0; transform: translateX(-28px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
+/* ---------- Quote tag ---------- */
+.quote-tag {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+.chat-message.user .quote-tag { background: #e0e7ff; color: #4338ca; }

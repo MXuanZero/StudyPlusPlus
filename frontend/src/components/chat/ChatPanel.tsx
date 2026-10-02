@@ -196,7 +196,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
             »
           </button>
         ) : null}
-        <span className="chat-title">'AI 助教'</span>
+        <span className="chat-title">AI 助教</span>
         <span className="spacer" />
         <button
           type="button"
@@ -297,6 +297,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
                         className="message-quote"
                         key={quote.id ?? `${message.id ?? 'msg'}-quote-${quoteIndex}`}
                       >
+                        <span className="quote-tag">引用</span>
                         <div className="quote-text" title={quote.text}>
                           {quote.text}
                         </div>
@@ -340,6 +341,7 @@ export function ChatPanel({ variant = 'drawer', onCollapse }: ChatPanelProps) {
               {pendingQuotes.map((quote, index) => (
                 <div className="pending-quote" key={quote.id ?? `pending-${index}`}>
                   <div className="pending-quote-main">
+                    <span className="quote-tag">引用</span>
                     <div className="pending-quote-text" title={quote.text}>
                       {quote.text}
                     </div>
