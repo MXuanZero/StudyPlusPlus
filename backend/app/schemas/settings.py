@@ -93,3 +93,28 @@ class LLMTestResponse(BaseModel):
     model: str
     latency_ms: int | None = None
     code: str | None = None
+
+class SystemPromptSettingsResponse(BaseModel):
+    """Effective and default tutor system prompts for the settings page."""
+
+    system_prompt: str
+    default_system_prompt: str
+    is_custom: bool
+
+
+class SystemPromptUpdate(BaseModel):
+    """Body for ``PUT /settings/prompt``. Blank input resets to default."""
+
+    system_prompt: str = Field(min_length=1, max_length=20_000)
+
+    @field_validator("system_prompt", mode="before")
+    @classmethod
+    def _strip_prompt(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("system_prompt")
+    @classmethod
+    def _prompt_not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("系统提示词不能为空；如需恢复默认请调用 reset 接口")
+        return value

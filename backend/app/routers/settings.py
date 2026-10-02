@@ -7,8 +7,10 @@ from ..schemas.settings import (
     LLMSettingsResponse,
     LLMSettingsUpdate,
     LLMTestResponse,
+    SystemPromptSettingsResponse,
+    SystemPromptUpdate,
 )
-from ..services import llm
+from ..services import llm, prompt
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
@@ -49,3 +51,39 @@ def reset_llm_settings() -> LLMSettingsResponse:
     llm.reset_llm_settings()
     config, key_source = llm.resolve_llm_settings()
     return LLMSettingsResponse(**llm.build_settings_response(config, key_source))
+
+@router.get("/prompt", response_model=SystemPromptSettingsResponse)
+def get_system_prompt_settings() -> SystemPromptSettingsResponse:
+    """Return the effective system prompt plus the built-in default."""
+
+    return SystemPromptSettingsResponse(
+        system_prompt=prompt.load_tutor_system_prompt(),
+        default_system_prompt=prompt.load_default_system_prompt(),
+        is_custom=prompt.is_system_prompt_custom(),
+    )
+
+
+@router.put("/prompt", response_model=SystemPromptSettingsResponse)
+def update_system_prompt_settings(
+    payload: SystemPromptUpdate,
+) -> SystemPromptSettingsResponse:
+    """Save a custom system prompt and apply it to subsequent conversations."""
+
+    system_prompt = prompt.save_system_prompt(payload.system_prompt)
+    return SystemPromptSettingsResponse(
+        system_prompt=system_prompt,
+        default_system_prompt=prompt.load_default_system_prompt(),
+        is_custom=prompt.is_system_prompt_custom(),
+    )
+
+
+@router.post("/prompt/reset", response_model=SystemPromptSettingsResponse)
+def reset_system_prompt_settings() -> SystemPromptSettingsResponse:
+    """Delete the custom prompt and restore the built-in default."""
+
+    system_prompt = prompt.reset_system_prompt()
+    return SystemPromptSettingsResponse(
+        system_prompt=system_prompt,
+        default_system_prompt=prompt.load_default_system_prompt(),
+        is_custom=False,
+    )

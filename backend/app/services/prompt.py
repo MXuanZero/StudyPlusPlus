@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from functools import lru_cache
 from typing import Any
 
 from ..config import settings
+from ..db import get_connection, utc_now
 
 FALLBACK_SYSTEM_PROMPT = (
     "你是 StudyPlusPlus 的控制理论助教，面向数学和物理基础薄弱的初学者。"
@@ -19,14 +21,17 @@ CONTEXT_GUARD = (
     "可以作答，但要先说明它不属于当前章节。"
 )
 
+SYSTEM_PROMPT_KEY = "tutor_system_prompt"
+MAX_SYSTEM_PROMPT_CHARS = 20_000
+
 # Keep context injection bounded so a malformed client payload cannot blow up
 # the request size or prompt cost.
 MAX_CONTEXT_CHARS = 4000
 
 
 @lru_cache(maxsize=1)
-def load_tutor_system_prompt() -> str:
-    """Load ``prompts/tutor_system.md``.
+def load_default_system_prompt() -> str:
+    """Load the built-in ``prompts/tutor_system.md`` file.
 
     The file is cached because it is static for the lifetime of the process.
     A conservative fallback keeps the service usable if the file is removed.
@@ -38,6 +43,82 @@ def load_tutor_system_prompt() -> str:
     except OSError:
         return FALLBACK_SYSTEM_PROMPT
     return text or FALLBACK_SYSTEM_PROMPT
+
+
+def get_stored_system_prompt() -> str | None:
+    """Return the user-edited system prompt stored in ``app_settings``.
+
+    Returns ``None`` when no custom prompt is saved, the database is not
+    initialized yet, or the stored value is blank/invalid.
+    """
+
+    try:
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT value_json FROM app_settings WHERE key = ?",
+                (SYSTEM_PROMPT_KEY,),
+            ).fetchone()
+    except sqlite3.OperationalError:
+        return None
+    if row is None:
+        return None
+    try:
+        value = json.loads(row["value_json"])
+    except (TypeError, json.JSONDecodeError):
+        return None
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def is_system_prompt_custom() -> bool:
+    """Whether the effective system prompt comes from user settings."""
+
+    return get_stored_system_prompt() is not None
+
+
+def load_tutor_system_prompt() -> str:
+    """Return the effective tutor system prompt.
+
+    Priority: user-edited prompt in SQLite > built-in prompt file.
+    The current chapter context is appended later by :func:`build_system_prompt`.
+    """
+
+    return get_stored_system_prompt() or load_default_system_prompt()
+
+
+def save_system_prompt(text: str) -> str:
+    """Persist a custom system prompt and return the effective prompt."""
+
+    cleaned = text.strip()
+    if not cleaned:
+        return reset_system_prompt()
+    if len(cleaned) > MAX_SYSTEM_PROMPT_CHARS:
+        cleaned = cleaned[:MAX_SYSTEM_PROMPT_CHARS]
+    now = utc_now()
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO app_settings (key, value_json, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(key) DO UPDATE SET
+              value_json = excluded.value_json,
+              updated_at = excluded.updated_at
+            """,
+            (SYSTEM_PROMPT_KEY, json.dumps(cleaned, ensure_ascii=False), now),
+        )
+    return cleaned
+
+
+def reset_system_prompt() -> str:
+    """Delete the user-edited prompt and return the built-in default."""
+
+    with get_connection() as conn:
+        conn.execute(
+            "DELETE FROM app_settings WHERE key = ?",
+            (SYSTEM_PROMPT_KEY,),
+        )
+    return load_default_system_prompt()
 
 
 def normalize_context(context: dict[str, Any] | None) -> dict[str, Any]:
