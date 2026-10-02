@@ -15,6 +15,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/learn/:chapterId" element={<ChapterPage />} />
           <Route path="/learn/:chapterId/:topicId" element={<ChapterPage />} />
+          <Route path="/learn/:chapterId/:topicId/assistant" element={<ChapterPage assistantMode />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

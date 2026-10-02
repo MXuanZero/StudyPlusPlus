@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { fetchTopic } from '../api/curriculum'
 import { ApiError } from '../api/client'
 import type { TopicDetail } from '../api/types'
+import { ChatPanel } from '../components/chat/ChatPanel'
 import { CatalogReveal } from '../components/layout/CatalogReveal'
 import { CatalogTree } from '../components/layout/CatalogTree'
 import { MarkdownRenderer } from '../components/markdown/MarkdownRenderer'
@@ -31,7 +32,16 @@ function StateBlock({
   )
 }
 
-export function ChapterPage() {
+function topicPath(chapterId: string, topicId: string, assistantMode: boolean): string {
+  return `/learn/${chapterId}/${topicId}${assistantMode ? '/assistant' : ''}`
+}
+
+interface ChapterPageProps {
+  /** true：AI 分屏路由 /learn/:chapterId/:topicId/assistant */
+  assistantMode?: boolean
+}
+
+export function ChapterPage({ assistantMode = false }: ChapterPageProps) {
   const { chapterId, topicId } = useParams()
   const curriculum = useLearningStore((state) => state.curriculum)
   const loading = useLearningStore((state) => state.loading)
@@ -128,7 +138,7 @@ export function ChapterPage() {
   }
 
   if (!topicId && firstTopicId) {
-    return <Navigate to={`/learn/${chapter.id}/${firstTopicId}`} replace />
+    return <Navigate to={topicPath(chapter.id, firstTopicId, assistantMode)} replace />
   }
 
   const topicUnavailable = topicError?.code === 'TOPIC_NOT_AVAILABLE' || topicError?.code === 'TOPIC_NOT_FOUND'
@@ -172,6 +182,12 @@ export function ChapterPage() {
                 <span>{topic.title}</span>
               </>
             ) : null}
+            {assistantMode ? (
+              <>
+                <span>/</span>
+                <span>AI 分屏</span>
+              </>
+            ) : null}
           </div>
 
           {topicLoading && !topic ? <CenteredSpinner label="知识点加载中…" /> : null}
@@ -206,6 +222,13 @@ export function ChapterPage() {
                   </span>
                 ) : null}
                 <span className="spacer" />
+                <Link
+                  className={`btn btn-sm ${assistantMode ? '' : 'btn-primary'}`}
+                  to={topicPath(chapter.id, topic.id, !assistantMode)}
+                  title={assistantMode ? '返回普通课程页面' : '在右侧常驻 AI 助教'}
+                >
+                  {assistantMode ? '退出分屏' : 'AI 分屏'}
+                </Link>
                 <Button size="sm" onClick={() => setNotesOpen(true)}>
                   笔记
                 </Button>
@@ -228,7 +251,7 @@ export function ChapterPage() {
 
               <nav className="topic-nav" aria-label="知识点导航">
                 {topic.prev_topic ? (
-                  <Link to={`/learn/${chapter.id}/${topic.prev_topic.id}`}>
+                  <Link to={topicPath(chapter.id, topic.prev_topic.id, assistantMode)}>
                     <span className="dir">← 上一节</span>
                     <span className="name">{topic.prev_topic.title}</span>
                   </Link>
@@ -236,7 +259,10 @@ export function ChapterPage() {
                   <span className="placeholder" />
                 )}
                 {topic.next_topic ? (
-                  <Link to={`/learn/${chapter.id}/${topic.next_topic.id}`} style={{ textAlign: 'right' }}>
+                  <Link
+                    to={topicPath(chapter.id, topic.next_topic.id, assistantMode)}
+                    style={{ textAlign: 'right' }}
+                  >
                     <span className="dir">下一节 →</span>
                     <span className="name">{topic.next_topic.title}</span>
                   </Link>
@@ -248,6 +274,7 @@ export function ChapterPage() {
           ) : null}
         </article>
       </div>
+      {assistantMode && topic ? <ChatPanel variant="inline" /> : null}
       {topic ? (
         <NotesDrawer
           open={notesOpen}
