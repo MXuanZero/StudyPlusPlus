@@ -53,6 +53,8 @@ MOCK_TEST_MESSAGE = "当前为 Mock 模式：尚未配置 API Key，Mock 回复�
 MASK_PREFIX = "****"
 
 _SECRET_PATTERN = re.compile(r"sk-[A-Za-z0-9_\-]{6,}")
+_QUERY_KEY_PATTERN = re.compile(r"(?i)(api[_-]?key=)[^&\s\"']+")
+_BEARER_PATTERN = re.compile(r"(?i)(bearer\s+)[A-Za-z0-9._\-]+")
 
 
 class LLMError(Exception):
@@ -118,6 +120,8 @@ def sanitize_error_message(message: str | None, api_key: str | None = None) -> s
     if api_key:
         text = text.replace(api_key, "***")
     text = _SECRET_PATTERN.sub("sk-***", text)
+    text = _QUERY_KEY_PATTERN.sub(r"\1***", text)
+    text = _BEARER_PATTERN.sub(r"\1***", text)
     return text
 
 
@@ -498,7 +502,7 @@ def _extract_sse_data(line: str) -> str | None:
         return None
     if stripped.startswith(":"):
         return None
-    if stripped.startswith("event:"):
+    if stripped.startswith(("event:", "id:", "retry:")):
         return None
     if stripped.startswith("data:"):
         return stripped[len("data:") :].strip()

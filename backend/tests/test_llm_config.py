@@ -89,6 +89,24 @@ def test_sanitize_error_message_redacts_secrets():
     assert cleaned == "invalid key *** for request"
 
 
+def test_sanitize_error_message_redacts_query_and_bearer_keys():
+    message = "GET https://example.com/v1?api_key=topsecret123 failed (Bearer abc.def-456)"
+    cleaned = llm.sanitize_error_message(message)
+    assert "topsecret123" not in cleaned
+    assert "abc.def-456" not in cleaned
+    assert "api_key=***" in cleaned
+    assert "Bearer ***" in cleaned
+
+
+def test_extract_sse_data_handles_data_and_non_data_fields():
+    assert llm._extract_sse_data('data: {"choices":[]}') == '{"choices":[]}'
+    assert llm._extract_sse_data("data: [DONE]") == "[DONE]"
+    assert llm._extract_sse_data(": keep-alive") is None
+    assert llm._extract_sse_data("event: ping") is None
+    assert llm._extract_sse_data("id: 42") is None
+    assert llm._extract_sse_data("retry: 1000") is None
+
+
 def test_prompt_injects_chapter_context():
     system_prompt = prompt.build_system_prompt(
         {"chapter": "ch05", "topic": "ch05-03", "learning_path": ["第5章"]}
