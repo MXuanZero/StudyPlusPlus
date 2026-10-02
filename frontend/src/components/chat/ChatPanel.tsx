@@ -54,7 +54,15 @@ function contextLabel(context: ReturnType<typeof usePageContext>): string {
   return '当前：课程首页'
 }
 
-export function ChatPanel() {
+export type ChatPanelVariant = 'drawer' | 'inline'
+
+interface ChatPanelProps {
+  /** drawer：右侧浮层（默认）；inline：常驻分屏，占据 learn-layout 的 flex 子项。 */
+  variant?: ChatPanelVariant
+}
+
+export function ChatPanel({ variant = 'drawer' }: ChatPanelProps) {
+  const inline = variant === 'inline'
   const open = useChatStore((state) => state.open)
   const closePanel = useChatStore((state) => state.closePanel)
   const sessions = useChatStore((state) => state.sessions)
@@ -103,8 +111,8 @@ export function ChatPanel() {
   }, [])
 
   useEffect(() => {
-    if (open) void loadSessions()
-  }, [loadSessions, open])
+    if (open || inline) void loadSessions()
+  }, [inline, loadSessions, open])
 
   useEffect(() => {
     const host = messagesRef.current
@@ -155,10 +163,10 @@ export function ChatPanel() {
 
   return (
     <aside
-      className={`chat-panel ${open ? 'open' : ''}`}
+      className={`chat-panel ${inline ? 'inline' : open ? 'open' : ''}`}
       style={{ width: panelWidth }}
-      aria-hidden={!open}
-      aria-label="AI 助教面板"
+      aria-hidden={inline ? false : !open}
+      aria-label={inline ? 'AI 助教分屏面板' : 'AI 助教面板'}
     >
       <div
         className="chat-resizer"
@@ -170,7 +178,7 @@ export function ChatPanel() {
         title="拖动调整宽度，双击恢复默认"
       />
       <header className="chat-head">
-        <span className="chat-title">AI 助教</span>
+        <span className="chat-title">{inline ? 'AI 助教 · 分屏' : 'AI 助教'}</span>
         <span className="spacer" />
         <button
           type="button"
@@ -191,9 +199,11 @@ export function ChatPanel() {
         >
           ☰
         </button>
-        <button type="button" className="icon-btn" title="关闭" aria-label="关闭对话面板" onClick={closePanel}>
-          ×
-        </button>
+        {inline ? null : (
+          <button type="button" className="icon-btn" title="关闭" aria-label="关闭对话面板" onClick={closePanel}>
+            ×
+          </button>
+        )}
       </header>
 
       {showHistory ? (

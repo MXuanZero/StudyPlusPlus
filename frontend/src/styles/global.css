@@ -729,3 +729,13 @@ body.is-col-resizing,
 body.is-col-resizing * { cursor: col-resize !important; }
 body.is-col-resizing { user-select: none; }
 body.is-col-resizing * { user-select: none !important; }
+
+/* ---------- Inline (split-screen) chat panel ---------- */
+.chat-panel.inline {
+  position: sticky; top: 0; right: auto; bottom: auto;
+  height: 100vh; max-width: none; z-index: 20;
+  transform: none; box-shadow: none;
+  border-left: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+.chat-panel.inline .chat-resizer { display: block; }
