@@ -70,42 +70,42 @@
         {
           "id": "ch03",
           "title": "第3章 动态系统建模———状态空间方程",
-          "status": "planned",
+          "status": "available",
           "topics": [
             {
               "id": "ch03-01",
               "title": "3.1 状态空间方程",
-              "file": null,
+              "file": "ch03/03-01.md",
               "widgets": [],
-              "status": "planned"
+              "status": "available"
             },
             {
               "id": "ch03-02",
               "title": "3.2 相平面数学基础",
-              "file": null,
+              "file": "ch03/03-02.md",
               "widgets": [],
-              "status": "planned"
+              "status": "available"
             },
             {
               "id": "ch03-03",
               "title": "3.3 相平面与相轨迹分析",
-              "file": null,
+              "file": "ch03/03-03.md",
               "widgets": [],
-              "status": "planned"
+              "status": "available"
             },
             {
               "id": "ch03-04",
               "title": "3.4 相平面案例分析———爱情故事",
-              "file": null,
+              "file": "ch03/03-04.md",
               "widgets": [],
-              "status": "planned"
+              "status": "available"
             },
             {
               "id": "ch03-05",
               "title": "3.5 本章要点总结",
-              "file": null,
+              "file": "ch03/03-05.md",
               "widgets": [],
-              "status": "planned"
+              "status": "available"
             }
           ]
         },

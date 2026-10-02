@@ -52,11 +52,16 @@ def test_curriculum_has_two_volumes_and_expected_chapters_available(client: Test
 
     chapters = [chapter for book in data["books"] for chapter in book["chapters"]]
     available_chapters = [chapter for chapter in chapters if chapter["status"] == "available"]
-    assert [chapter["id"] for chapter in available_chapters] == ["ch04", "ch05", "ch06"]
+    assert [chapter["id"] for chapter in available_chapters] == ["ch03", "ch04", "ch05", "ch06"]
 
     topics = [topic for chapter in chapters for topic in chapter["topics"]]
     available_topics = [topic for topic in topics if topic["status"] == "available"]
     assert [topic["id"] for topic in available_topics] == [
+        "ch03-01",
+        "ch03-02",
+        "ch03-03",
+        "ch03-04",
+        "ch03-05",
         "ch04-01",
         "ch04-02",
         "ch04-03",
@@ -128,14 +133,16 @@ def test_all_ch05_topics_have_body_and_widget_placeholder(client: TestClient):
 
 
 def test_topic_navigation_edges(client: TestClient):
-    first = client.get("/api/v1/topics/ch04-01").json()
+    first = client.get("/api/v1/topics/ch03-01").json()
     assert first["prev_topic"] is None
-    assert first["next_topic"] == {"id": "ch04-02", "title": "4.2 一阶系统的时域响应"}
+    assert first["next_topic"] == {"id": "ch03-02", "title": "3.2 相平面数学基础"}
 
     last = client.get("/api/v1/topics/ch06-04").json()
     assert last["prev_topic"] == {"id": "ch06-03", "title": "6.3 稳定性与状态空间方程"}
     assert last["next_topic"] is None
 
+    ch04_first = client.get("/api/v1/topics/ch04-01").json()
+    assert ch04_first["prev_topic"] == {"id": "ch03-05", "title": "3.5 本章要点总结"}
     ch05_first = client.get("/api/v1/topics/ch05-01").json()
     assert ch05_first["prev_topic"] == {"id": "ch04-04", "title": "4.4 本章要点总结"}
     ch05_last = client.get("/api/v1/topics/ch05-05").json()

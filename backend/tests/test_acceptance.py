@@ -360,7 +360,7 @@ def test_curriculum_expected_chapters_are_available(client: TestClient) -> None:
     books = response.json()["books"]
     assert [book["id"] for book in books] == ["vol1", "vol2"]
 
-    available_chapters = {"ch04", "ch05", "ch06"}
+    available_chapters = {"ch03", "ch04", "ch05", "ch06"}
     for book in books:
         assert book["chapters"], book["id"]
         for chapter in book["chapters"]:
@@ -403,13 +403,15 @@ def test_topic_detail_navigation_and_content_markers(client: TestClient) -> None
     assert isinstance(payload["widgets"], list) and payload["widgets"]
     assert all({"id", "type"} <= set(widget) for widget in payload["widgets"])
 
-    first = client.get("/api/v1/topics/ch04-01").json()
+    first = client.get("/api/v1/topics/ch03-01").json()
     last = client.get("/api/v1/topics/ch06-04").json()
-    assert first["prev_topic"] is None and first["next_topic"]["id"] == "ch04-02"
+    assert first["prev_topic"] is None and first["next_topic"]["id"] == "ch03-02"
     assert last["next_topic"] is None and last["prev_topic"]["id"] == "ch06-03"
 
+    ch04_first = client.get("/api/v1/topics/ch04-01").json()
     ch05_first = client.get("/api/v1/topics/ch05-01").json()
     ch05_last = client.get("/api/v1/topics/ch05-05").json()
+    assert ch04_first["prev_topic"]["id"] == "ch03-05"
     assert ch05_first["prev_topic"]["id"] == "ch04-04"
     assert ch05_last["next_topic"]["id"] == "ch06-01"
 
