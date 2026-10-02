@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-03", text: "T19 完成：新增第 3 章状态空间方程与相平面分析（5 节）教学内容，目录标为可学习；全量 pytest 通过（7dfa3f1）。" },
   { date: "2026-10-03", text: "修复切换章节白屏：正文划线改为在 Markdown AST 渲染阶段插入 <mark>，不再直接改写 React 管理的 DOM，避免卸载时节点不一致崩溃（ce1d5ce）。" },
   { date: "2026-10-02", text: "T18 完成：新增第 4 章一阶系统（4 节）与第 6 章稳定性（4 节）教学内容，目录标记为可学习；全量 pytest 通过（a025e0e）。" },
   { date: "2026-10-02", text: "修复划线偏移：已高亮文本继续参与字符偏移计算，避免多个标注叠加后位置漂移（8595851）。" },
@@ -623,6 +624,26 @@ const TASKS = [
       { text: "更新现有内容/验收测试以覆盖新增章节", done: true },
       { text: "后端全量 pytest 通过", done: true },
       { text: "完成 T18 验收并更新 todo.html", done: true }
+    ]
+  },
+  {
+    id: "T19",
+    title: "第 3 章教学内容",
+    phase: "课程内容",
+    status: "completed",
+    owner: "内容智能体 + Lead",
+    deps: ["T2"],
+    deliverable: "第 3 章状态空间方程与相平面分析共 5 个知识点的 Markdown 教学内容，并接入课程目录。",
+    acceptance: "ch03-01~05 可通过课程 API 和网页学习；目录状态为 available；全量测试通过。",
+    subtasks: [
+      { text: "3.1 状态空间方程", done: true },
+      { text: "3.2 相平面数学基础", done: true },
+      { text: "3.3 相平面与相轨迹分析", done: true },
+      { text: "3.4 相平面案例分析———爱情故事", done: true },
+      { text: "3.5 本章要点总结", done: true },
+      { text: "更新 curriculum.json 与测试，ch03 标为 available", done: true },
+      { text: "后端全量 pytest 通过", done: true },
+      { text: "完成 T19 验收并更新 todo.html", done: true }
     ]
   }
 ];
