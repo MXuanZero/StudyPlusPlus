@@ -146,6 +146,12 @@ def _update_assistant_message(
         )
 
 
+def _delete_message(message_row_id: int) -> None:
+    """Remove a message row that should not appear in history."""
+    with get_connection() as conn:
+        conn.execute("DELETE FROM chat_messages WHERE id = ?", (message_row_id,))
+
+
 def _touch_session(session_id: str, context: dict[str, Any] | None) -> None:
     now = utc_now()
     with get_connection() as conn:
@@ -317,8 +323,13 @@ async def stream_message(session_id: str, payload: ChatStreamRequest) -> Streami
                 final_meta["finish_reason"] = finish_reason
             if error_event:
                 final_meta["error_code"] = error_event.code
-            # Persist even partial output so the user can retry / reload.
-            _update_assistant_message(assistant_row_id, final_content, final_meta)
+            if error_event is not None and not final_content:
+                # Do not leave an empty assistant bubble in history when the
+                # upstream call fails before producing any text.
+                _delete_message(assistant_row_id)
+            else:
+                # Persist even partial output so the user can retry / reload.
+                _update_assistant_message(assistant_row_id, final_content, final_meta)
 
         if error_event is not None:
             return
