@@ -15,6 +15,13 @@ if str(BACKEND_DIR) not in sys.path:
 from app.main import app  # noqa: E402  (path bootstrap must run first)
 from app.services import content_loader  # noqa: E402
 
+ALLOWED_WIDGET_TYPES = {
+    "second_order_standard_form",
+    "second_order_lab",
+    "second_order_metrics_lab",
+    "second_order_comparison_lab",
+}
+
 
 @pytest.fixture()
 def client():
@@ -91,6 +98,7 @@ def test_ch05_03_returns_body_widgets_and_navigation(client: TestClient):
     assert widget["id"] == "second-order-step-lab"
     assert widget["type"] == "second_order_lab"
     assert widget["default_mode"] == "step"
+    assert widget["type"] in ALLOWED_WIDGET_TYPES
     assert "[[widget:second-order-step-lab]]" in topic["body_markdown"]
     assert ":::details" in topic["body_markdown"]
 
@@ -103,6 +111,8 @@ def test_all_ch05_topics_have_body_and_widget_placeholder(client: TestClient):
         topic = response.json()
         assert topic["body_markdown"].strip(), entry["id"]
         assert topic["widgets"], entry["id"]
+        for widget in topic["widgets"]:
+            assert widget["type"] in ALLOWED_WIDGET_TYPES, widget
         for widget_id in entry["widgets"]:
             assert f"[[widget:{widget_id}]]" in topic["body_markdown"], (
                 entry["id"],
