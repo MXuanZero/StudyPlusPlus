@@ -573,3 +573,40 @@ select.form-control { height: 38px; }
 }
 .quote-fab:hover { background: #1f2937; }
 .quote-fab:active { transform: translateY(1px); }
+
+/* ---------- Pending quotes & message quotes ---------- */
+.pending-quotes {
+  margin-bottom: 8px; border: 1px solid #c7d2fe; background: var(--accent-soft);
+  border-radius: 9px; padding: 8px 9px;
+}
+.pending-quotes-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 12px; color: var(--accent-dark); font-weight: 600; margin-bottom: 6px;
+}
+.pending-quotes-list { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
+.pending-quote {
+  display: flex; gap: 6px; align-items: flex-start; background: #fff;
+  border: 1px solid #dbeafe; border-radius: 7px; padding: 6px 8px;
+}
+.pending-quote-main { flex: 1; min-width: 0; }
+.pending-quote-text {
+  font-size: 12.5px; color: var(--text); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pending-quote-source {
+  font-size: 11px; color: var(--muted); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.message-quotes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.message-quote {
+  margin: 0; border-left: 3px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.16); border-radius: 0 6px 6px 0; padding: 6px 9px;
+}
+.chat-message.assistant .message-quote {
+  border-left-color: var(--accent); background: var(--accent-soft);
+}
+.message-quote .quote-text {
+  font-size: 12.5px; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.message-quote .quote-source { font-size: 11px; opacity: 0.82; margin-top: 3px; }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ChatMessage, ChatQuote } from '../../api/types'
 import { useChatStore } from '../../store/chatStore'
 import { usePageContext } from '../../hooks/usePageContext'
 import { Button } from '../ui/Button'
@@ -8,6 +9,11 @@ const SUGGESTIONS = [
   '极点位置和稳定性是什么关系？',
   '超调量和阻尼比有什么关系？',
 ]
+
+function quotesOf(message: ChatMessage): ChatQuote[] {
+  const quotes = message.meta?.quotes
+  return Array.isArray(quotes) ? quotes : []
+}
 
 function contextLabel(context: ReturnType<typeof usePageContext>): string {
   if (context.topic) return `当前：${context.topic}`
@@ -32,6 +38,9 @@ export function ChatPanel() {
   const sendMessage = useChatStore((state) => state.sendMessage)
   const stopStreaming = useChatStore((state) => state.stopStreaming)
   const clearError = useChatStore((state) => state.clearError)
+  const pendingQuotes = useChatStore((state) => state.pendingQuotes)
+  const removeQuote = useChatStore((state) => state.removeQuote)
+  const clearQuotes = useChatStore((state) => state.clearQuotes)
 
   const pageContext = usePageContext()
   const [input, setInput] = useState('')
@@ -146,10 +155,26 @@ export function ChatPanel() {
         {messages.map((message, index) => {
           const isLast = index === messages.length - 1
           const isStreamingBubble = streaming && isLast && message.role === 'assistant'
+          const quotes = message.role === 'user' ? quotesOf(message) : []
           return (
             <div className={`chat-message ${message.role}`} key={message.id ?? `${message.role}-${index}`}>
               <span className="role">{message.role === 'user' ? '我' : 'AI 助教'}</span>
               <div className="chat-bubble">
+                {quotes.length ? (
+                  <div className="message-quotes">
+                    {quotes.map((quote, quoteIndex) => (
+                      <blockquote
+                        className="message-quote"
+                        key={quote.id ?? `${message.id ?? 'msg'}-quote-${quoteIndex}`}
+                      >
+                        <div className="quote-text" title={quote.text}>
+                          {quote.text}
+                        </div>
+                        {quote.source ? <div className="quote-source">— {quote.source}</div> : null}
+                      </blockquote>
+                    ))}
+                  </div>
+                ) : null}
                 {message.content || (isStreamingBubble ? '' : '…')}
                 {isStreamingBubble ? <span className="chat-cursor" /> : null}
               </div>
@@ -165,13 +190,48 @@ export function ChatPanel() {
       ) : null}
 
       <div className="chat-input-area">
+        {pendingQuotes.length ? (
+          <div className="pending-quotes">
+            <div className="pending-quotes-head">
+              <span>待发送引用 {pendingQuotes.length}/5</span>
+              <button type="button" className="btn btn-sm btn-ghost" onClick={clearQuotes}>
+                全部清空
+              </button>
+            </div>
+            <div className="pending-quotes-list">
+              {pendingQuotes.map((quote, index) => (
+                <div className="pending-quote" key={quote.id ?? `pending-${index}`}>
+                  <div className="pending-quote-main">
+                    <div className="pending-quote-text" title={quote.text}>
+                      {quote.text}
+                    </div>
+                    {quote.source ? <div className="pending-quote-source">{quote.source}</div> : null}
+                  </div>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label="删除这条引用"
+                    title="删除这条引用"
+                    onClick={() => removeQuote(quote.id ?? '')}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
         <span className="chat-context" title={contextChip}>
           {contextChip}
         </span>
         <div className="chat-input-row">
           <textarea
             value={input}
-            placeholder="输入你的问题，Enter 发送，Shift+Enter 换行"
+            placeholder={
+              pendingQuotes.length
+                ? '引用已就绪，输入你的问题后发送'
+                : '输入你的问题，Enter 发送，Shift+Enter 换行'
+            }
             rows={1}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => {
