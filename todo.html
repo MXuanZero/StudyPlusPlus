@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "新增 T13：AI 助教改为独立分屏页面，课程内容与常驻 AI 面板左右分屏；frontend-dev 开发中。" },
   { date: "2026-10-02", text: "目录折叠入口改为全屏高度竖向滑条：默认隐藏，鼠标移入屏幕最左侧时滑出，离开自动隐藏；前端 build 通过（9a933f7）。" },
   { date: "2026-10-02", text: "折叠目录入口改为左侧竖向灰色半透明窄条，四字竖排“打开目录”，点击展开；前端 build 通过（1cd46b6）。" },
   { date: "2026-10-02", text: "T12 完成：删除顶栏、设置入口移首页、S+ 品牌置目录顶部、折叠目录隐藏并由左侧悬停 100ms 打开、AI 面板拖拽调宽并持久化；前端 build 通过（6ef01d4/a8fede4/84441c7）。" },
@@ -496,6 +497,24 @@ const TASKS = [
       { text: "ChatPanel 左侧拖拽调宽并持久化 localStorage", done: true },
       { text: "npm run build 通过，回归课程/实验室/聊天/设置", done: true },
       { text: "完成 T12 验收并更新 todo.html", done: true }
+    ]
+  },
+  {
+    id: "T13",
+    title: "AI 助教与课程内容分屏页面",
+    phase: "功能增强",
+    status: "in_progress",
+    owner: "前端智能体",
+    deps: ["T7", "T12"],
+    deliverable: "独立分屏路由、ChatPanel inline 模式、分屏/退出按钮、ChatDock 隐藏逻辑。",
+    acceptance: "课程内容与 AI 助教左右二分屏常驻；保留流式、引用、拖拽调宽；普通页面抽屉不回归。",
+    subtasks: [
+      { text: "新增 /learn/:chapterId/:topicId/assistant 路由与页面入口按钮", done: false },
+      { text: "ChatPanel 支持 inline 分屏模式（常驻、不浮层、隐藏关闭按钮）", done: false },
+      { text: "分屏时 ChatDock 不渲染，上一节/下一节保持 /assistant 后缀", done: false },
+      { text: "分屏布局 CSS 与拖拽宽度持久化兼容", done: false },
+      { text: "npm run build 通过，回归普通聊天/引用/课程内容", done: false },
+      { text: "完成 T13 验收并更新 todo.html", done: false }
     ]
   }
 ];
