@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { fetchTopic } from '../api/curriculum'
 import { ApiError } from '../api/client'
 import type { TopicDetail } from '../api/types'
+import { CatalogReveal } from '../components/layout/CatalogReveal'
 import { CatalogTree } from '../components/layout/CatalogTree'
 import { MarkdownRenderer } from '../components/markdown/MarkdownRenderer'
 import { NotesDrawer } from '../components/notes/NotesDrawer'
@@ -134,26 +135,28 @@ export function ChapterPage() {
 
   return (
     <div className="learn-layout">
-      <aside className={`catalog ${collapsed ? 'collapsed' : ''}`}>
-        <div className="catalog-head">
-          {!collapsed ? (
+      {collapsed ? <CatalogReveal onOpen={() => setCollapsed(false)} /> : null}
+      {!collapsed ? (
+        <aside className="catalog">
+          <div className="catalog-head">
             <Link to="/" className="brand catalog-brand" title="返回首页">
               <span className="brand-mark">S+</span>
               <span className="brand-text">StudyPlusPlus</span>
             </Link>
-          ) : null}
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label={collapsed ? '展开课程目录' : '折叠课程目录'}
-            onClick={() => setCollapsed((value) => !value)}
-          >
-            {collapsed ? '»' : '«'}
-          </button>
-        </div>
-        {!collapsed ? <div className="catalog-section-title">课程目录</div> : null}
-        <CatalogTree collapsed={collapsed} />
-      </aside>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="折叠课程目录"
+              title="折叠课程目录"
+              onClick={() => setCollapsed(true)}
+            >
+              «
+            </button>
+          </div>
+          <div className="catalog-section-title">课程目录</div>
+          <CatalogTree collapsed={false} />
+        </aside>
+      ) : null}
 
       <div className="content-area">
         <article className="content-inner">
