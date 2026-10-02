@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -7,7 +7,7 @@ import type { WidgetConfig } from '../../api/types'
 import { DetailsBlock } from './DetailsBlock'
 import { tokenizeMarkdown } from '../../utils/markdownSegments'
 import type { Annotation } from '../../utils/annotations'
-import { applyAnnotationHighlights, getAnnotationIdFromEvent } from '../../utils/annotationHighlight'
+import { rehypeAnnotationHighlights } from '../../utils/rehypeAnnotations'
 
 /** Plotly 体积较大，仅在正文真正出现交互组件时动态加载。 */
 const LazyWidgetRenderer = lazy(async () => {
@@ -43,7 +43,6 @@ export function MarkdownRenderer({
   onAnnotationClick,
   quotable = true,
 }: MarkdownRendererProps) {
-  const rootRef = useRef<HTMLDivElement>(null)
   const source = useMemo(
     () => (stripLeadingHeading ? markdown.replace(/^\s*#\s+.*(?:\r?\n)?/, '') : markdown),
     [markdown, stripLeadingHeading],
@@ -55,31 +54,41 @@ export function MarkdownRenderer({
     return map
   }, [widgets])
 
-  useEffect(() => {
-    if (!quotable) return
-    const root = rootRef.current
-    if (!root) return
-    applyAnnotationHighlights(root, annotations)
-    const handleClick = (event: MouseEvent) => {
-      const annotationId = getAnnotationIdFromEvent(event.target)
-      if (!annotationId) return
-      const annotation = annotations.find((item) => item.id === annotationId)
-      if (annotation) onAnnotationClick?.(annotation)
+  const markdownComponents = useMemo<Components>(() => {
+    return {
+      ...MARKDOWN_COMPONENTS,
+      mark: ({ node: markNode, children }) => {
+        const annotationId = (markNode?.properties as Record<string, unknown> | undefined)
+          ?.annotationId
+        const id = typeof annotationId === 'string' ? annotationId : undefined
+        const annotation = id ? annotations.find((item) => item.id === id) : undefined
+        return (
+          <mark
+            className="annotation-highlight"
+            data-annotation-id={id}
+            title="点击查看相关 AI 提问"
+            onClick={(event) => {
+              event.stopPropagation()
+              if (annotation) onAnnotationClick?.(annotation)
+            }}
+          >
+            {children}
+          </mark>
+        )
+      },
     }
-    root.addEventListener('click', handleClick)
-    return () => root.removeEventListener('click', handleClick)
-  }, [annotations, markdown, onAnnotationClick, quotable])
+  }, [annotations, onAnnotationClick])
 
   return (
-    <div className="markdown-body" data-quotable={quotable || undefined} ref={rootRef}>
+    <div className="markdown-body" data-quotable={quotable || undefined}>
       {segments.map((segment, index) => {
         if (segment.type === 'markdown') {
           return (
             <ReactMarkdown
               key={index}
               remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-              components={MARKDOWN_COMPONENTS}
+              rehypePlugins={[rehypeKatex, [rehypeAnnotationHighlights, { annotations }]]}
+              components={markdownComponents}
             >
               {segment.content}
             </ReactMarkdown>
@@ -92,6 +101,8 @@ export function MarkdownRenderer({
                 markdown={segment.content}
                 widgets={widgets}
                 stripLeadingHeading={false}
+                annotations={annotations}
+                onAnnotationClick={onAnnotationClick}
                 quotable={false}
               />
             </DetailsBlock>
