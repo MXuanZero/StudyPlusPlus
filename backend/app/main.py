@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
@@ -28,6 +29,44 @@ app = FastAPI(
     description="StudyPlusPlus control-theory visual learning API.",
     lifespan=lifespan,
 )
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_exception_handler(
+    _request: Request,
+    exc: RequestValidationError,
+) -> JSONResponse:
+    """Return one stable error envelope for all Pydantic validation errors.
+
+    docs/02 section 5 requires every error to be
+    ``{"detail": {"code": "...", "message": "..."}}``.  FastAPI's default
+    handler returns ``detail`` as a list, which the frontend cannot parse
+    consistently.
+    """
+    errors = exc.errors()
+    first = errors[0] if errors else {}
+    location = ".".join(
+        str(part) for part in first.get("loc", []) if part not in ("body",)
+    ) or "request"
+    message = f"{location}: {first.get('msg', '请求参数校验失败')}"
+    safe_errors = [
+        {
+            "loc": [str(part) for part in item.get("loc", [])],
+            "msg": item.get("msg", ""),
+            "type": item.get("type", ""),
+        }
+        for item in errors
+    ]
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "VALIDATION_ERROR",
+                "message": message,
+                "errors": safe_errors,
+            }
+        },
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
