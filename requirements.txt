@@ -1,6 +1,8 @@
 contourpy==1.4.0
 cycler==0.12.1
+fastapi==0.121.2
 fonttools==4.66.1
+httpx==0.28.1
 kiwisolver==1.5.1
 matplotlib==3.11.2
 narwhals==2.26.0
@@ -10,7 +12,12 @@ pandas==3.0.6
 pillow==12.3.0
 plotly==7.1.0
 pyparsing==3.3.3
+pydantic==2.12.5
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.1
+PyYAML==6.0.3
 scipy==1.18.1
 seaborn==0.13.2
 six==1.17.0
+uvicorn[standard]==0.40.0
+pytest==9.0.2

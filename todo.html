@@ -200,13 +200,15 @@
    ========================================================= */
 const PROJECT = {
   name: "StudyPlusPlus",
-  phase: "需求补充 / 暂缓开发",
-  devStatus: "未开始编码",
+  phase: "T1 已完成 / 进入并行开发",
+  devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "等待用户补充需求"
+  nextAction: "开始 T2 / T3 / T6 / T9 并行开发"
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T1 完成：FastAPI 骨架、健康检查、SQLite 表结构、React/Vite 前端骨架、Vite 代理与 CORS 均已就绪。" },
+  { date: "2026-10-02", text: "需求冻结，进入并行开发阶段；开始 T2 / T3 / T6 / T9。" },
   { date: "2026-10-02", text: "完成 v0.1 设计文档：PRD、技术方案、二阶系统模块详细设计、开发任务拆分。" },
   { date: "2026-10-02", text: "确认网站名称为 StudyPlusPlus；确认白色简洁桌面端风格；LLM 不写死，默认 DeepSeek。" },
   { date: "2026-10-02", text: "创建 todo.html 开发进度看板；当前暂缓开发，等待需求补充。" }
@@ -235,35 +237,36 @@ const TASKS = [
     id: "REQ",
     title: "需求补充与冻结",
     phase: "准备阶段",
-    status: "in_progress",
+    status: "completed",
     owner: "用户 + 产品",
     deps: ["DOC"],
     deliverable: "用户补充的新需求全部写入 docs/，并确认需求冻结。",
     acceptance: "用户明确说“开始开发”；PRD 与任务拆分无未决项。",
     subtasks: [
-      { text: "用户整理 StudyPlusPlus 还需要哪些功能 / 内容", done: false },
-      { text: "新增需求写入 docs/00_README.md 与 docs/01_产品需求文档.md", done: false },
-      { text: "必要时同步调整 docs/02、docs/03、docs/04", done: false },
-      { text: "用户确认需求冻结，允许进入 T1", done: false }
+      { text: "用户整理 StudyPlusPlus 还需要哪些功能 / 内容", done: true },
+      { text: "新增需求写入 docs/00_README.md 与 docs/01_产品需求文档.md", done: true },
+      { text: "必要时同步调整 docs/02、docs/03、docs/04", done: true },
+      { text: "用户确认需求冻结，允许进入 T1", done: true }
     ]
   },
   {
     id: "T1",
     title: "工程脚手架",
     phase: "基础设施",
-    status: "pending",
+    status: "completed",
     owner: "全栈智能体",
     deps: ["REQ"],
     deliverable: "前后端可启动骨架、健康检查接口、SQLite 建表、Vite 代理与 CORS。",
     acceptance: "按文档命令可同时启动前后端，访问首页与 /api/v1/health 正常。",
     subtasks: [
-      { text: "requirements.txt 追加 FastAPI、uvicorn、httpx、PyYAML、pytest 等后端依赖", done: false },
-      { text: "实现 backend/app/main.py 与 GET /api/v1/health", done: false },
-      { text: "初始化 frontend：Vite + React + TypeScript，首页占位", done: false },
-      { text: "配置 Vite /api 代理到 127.0.0.1:8000，配置 CORS", done: false },
-      { text: "建立 data/ 与 SQLite 表结构（progress / notes / chat / settings）", done: false },
-      { text: "更新 .gitignore，忽略数据库、node_modules、dist、.env", done: false },
-      { text: "完成 T1 启动验收并更新 todo.html", done: false }
+      { text: "requirements.txt 追加 FastAPI、uvicorn、httpx、PyYAML、pytest 等后端依赖", done: true },
+      { text: "实现 backend/app/main.py 与 GET /api/v1/health", done: true },
+      { text: "初始化 frontend：Vite + React + TypeScript，首页占位", done: true },
+      { text: "配置 Vite /api 代理到 127.0.0.1:8000，配置 CORS", done: true },
+      { text: "建立 data/ 与 SQLite 表结构（progress / notes / chat / settings）", done: true },
+      { text: "更新 .gitignore，忽略数据库、node_modules、dist、.env", done: true },
+      { text: "初始化 Git 仓库，完成基线提交与开发工作流规范", done: true },
+      { text: "完成 T1 启动验收并更新 todo.html", done: true }
     ]
   },
   {
