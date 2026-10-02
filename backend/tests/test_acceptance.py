@@ -116,6 +116,10 @@ def test_tc_c01_undamped_step(client: TestClient) -> None:
     assert metrics["peak_value"] == pytest.approx(2.0, abs=0.01)
     assert metrics["overshoot_pct"] == pytest.approx(100.0, abs=0.1)
     assert data["analytical_metrics"] is None
+    # An undamped system never settles, so the "increase t_end" hint is wrong.
+    diagnostics = " ".join(data["diagnostics"])
+    assert "无阻尼" in diagnostics or "等幅" in diagnostics
+    assert "增大 t_end" not in diagnostics
 
 
 def test_tc_c02_critically_damped_step(client: TestClient) -> None:
@@ -592,15 +596,22 @@ def test_frontend_has_no_solver_or_key_persistence() -> None:
     package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))
     dependencies = {**package.get("dependencies", {}), **package.get("devDependencies", {})}
     assert not any("numpy" in name or "scipy" in name for name in dependencies)
+    assert not (frontend_src / "mocks" / "secondOrder.ts").exists()
 
+    frontend_text: list[str] = []
     for path in frontend_src.rglob("*"):
         if path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
             continue
         text = path.read_text(encoding="utf-8")
+        frontend_text.append(text)
         assert "from 'numpy'" not in text and 'from "numpy"' not in text
         assert "from 'scipy'" not in text and 'from "scipy"' not in text
         if "localStorage.setItem" in text or "sessionStorage.setItem" in text:
             assert "api_key" not in text and "apiKey" not in text, f"{path} may persist a key"
+
+    combined_frontend = "\n".join(frontend_text)
+    assert "generateMockSimulation" not in combined_frontend
+    assert "mocks/secondOrder" not in combined_frontend
 
     secret_pattern = re.compile(r"sk-[A-Za-z0-9]{20,}")
     for base in (ROOT / "backend" / "app", frontend_src):
@@ -619,3 +630,76 @@ def test_production_bundle_excludes_dev_solver_if_built() -> None:
     # The DEV-only mock solver must not be reachable from the production bundle.
     assert "generateMockSimulation" not in combined
     assert "DEV-ONLY fallback" not in combined
+
+# ---------------------------------------------------------------------------
+# Regression coverage for the issues found during T10 acceptance
+# ---------------------------------------------------------------------------
+
+
+def test_validation_errors_use_unified_detail_envelope(client: TestClient) -> None:
+    """All Pydantic validation failures must keep the docs/02 error envelope."""
+
+    session = client.post("/api/v1/chat/sessions", json={}).json()
+    cases = [
+        client.put("/api/v1/progress/ch05-01", json={"status": "bogus"}),
+        client.post("/api/v1/notes", json={"topic_id": "ch05-01", "content": ""}),
+        client.post(
+            f"/api/v1/chat/sessions/{session['id']}/stream",
+            json={"content": "   "},
+        ),
+        client.put("/api/v1/settings/llm", json={"temperature": 9}),
+        client.post(SIMULATE, json={"n_points": "not-an-int"}),
+        client.post(SIMULATE, json={"unexpected_field": 1}),
+    ]
+    for response in cases:
+        assert response.status_code == 422, response.text
+        detail = response.json()["detail"]
+        assert isinstance(detail, dict), response.text
+        assert detail.get("code") == "VALIDATION_ERROR"
+        assert isinstance(detail.get("message"), str) and detail["message"]
+        assert isinstance(detail.get("errors"), list)
+
+
+def test_failed_stream_removes_empty_assistant_placeholder(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A failed live stream must not leave an empty assistant bubble."""
+
+    import httpx
+
+    from backend.app.schemas.settings import LLMSettingsUpdate
+    from backend.app.services import llm
+
+    llm.save_llm_settings(
+        LLMSettingsUpdate(
+            provider="custom",
+            base_url="https://llm.example.com",
+            model="test-model",
+            api_key="sk-acceptance-failed-stream",
+        )
+    )
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(401, json={"error": {"message": "invalid key"}})
+
+    monkeypatch.setattr(
+        llm,
+        "_build_async_client",
+        lambda timeout: httpx.AsyncClient(
+            transport=httpx.MockTransport(handler), timeout=timeout
+        ),
+    )
+
+    session_id = client.post("/api/v1/chat/sessions", json={"title": "失败流"}).json()["id"]
+    response = client.post(
+        f"/api/v1/chat/sessions/{session_id}/stream",
+        json={"content": "hello"},
+    )
+    assert response.status_code == 200
+    events = parse_sse(response.text)
+    assert [name for name, _ in events] == ["meta", "error"]
+    assert events[-1][1]["code"] == "LLM_AUTH_ERROR"
+
+    messages = client.get(f"/api/v1/chat/sessions/{session_id}/messages").json()["messages"]
+    assert [message["role"] for message in messages] == ["user"]
+    assert messages[0]["content"] == "hello"
