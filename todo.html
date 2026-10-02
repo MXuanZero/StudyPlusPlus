@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T18 完成：新增第 4 章一阶系统（4 节）与第 6 章稳定性（4 节）教学内容，目录标记为可学习；全量 pytest 通过（a025e0e）。" },
   { date: "2026-10-02", text: "修复划线偏移：已高亮文本继续参与字符偏移计算，避免多个标注叠加后位置漂移（8595851）。" },
   { date: "2026-10-02", text: "T17 完成：引用提问后在原文划线；点击高亮跳回对应会话（/assistant?session=...）；删除会话同步删除划线；前端 build 通过（8bcfd5f）。" },
   { date: "2026-10-02", text: "兼容旧默认标题：标题为“新对话”的已有会话，下次发消息时也会按首条提问自动生成名称（2ff050d）。" },
@@ -603,6 +604,24 @@ const TASKS = [
       { text: "删除会话时同步删除该会话的正文高亮", done: true },
       { text: "前端 build 通过，回归引用/分屏/会话历史", done: true },
       { text: "完成 T17 验收并更新 todo.html", done: true }
+    ]
+  },
+  {
+    id: "T18",
+    title: "第 4 章与第 6 章教学内容",
+    phase: "课程内容",
+    status: "completed",
+    owner: "内容智能体 + Lead",
+    deps: ["T2"],
+    deliverable: "第 4 章一阶系统、第 6 章稳定性共 8 个知识点的 Markdown 教学内容，并接入课程目录。",
+    acceptance: "ch04-01~04、ch06-01~04 可通过课程 API 和网页学习；目录状态为 available；全量测试通过。",
+    subtasks: [
+      { text: "第 4 章：引子、时域响应、案发时间揭秘、要点总结", done: true },
+      { text: "第 6 章：稳定性定义、传递函数稳定性、状态空间稳定性、要点总结", done: true },
+      { text: "更新 curriculum.json，将 ch04/ch06 标为 available 并指向 Markdown 文件", done: true },
+      { text: "更新现有内容/验收测试以覆盖新增章节", done: true },
+      { text: "后端全量 pytest 通过", done: true },
+      { text: "完成 T18 验收并更新 todo.html", done: true }
     ]
   }
 ];
