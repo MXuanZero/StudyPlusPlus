@@ -1,1 +1,751 @@
-{"books": []}
+{
+  "books": [
+    {
+      "id": "vol1",
+      "title": "控制之美（卷 1）：控制理论从传递函数到状态空间",
+      "chapters": [
+        {
+          "id": "ch01",
+          "title": "第1章 绪论",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch01-01",
+              "title": "1.1 动态系统",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch01-02",
+              "title": "1.2 控制系统",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch02",
+          "title": "第2章 动态系统建模———传递函数",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch02-01",
+              "title": "2.1 卷积与微分方程",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch02-02",
+              "title": "2.2 拉普拉斯变换",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch02-03",
+              "title": "2.3 传递函数和系统设计",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch02-04",
+              "title": "2.4 非零初始状态下的传递函数",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch02-05",
+              "title": "2.5 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch03",
+          "title": "第3章 动态系统建模———状态空间方程",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch03-01",
+              "title": "3.1 状态空间方程",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch03-02",
+              "title": "3.2 相平面数学基础",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch03-03",
+              "title": "3.3 相平面与相轨迹分析",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch03-04",
+              "title": "3.4 相平面案例分析———爱情故事",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch03-05",
+              "title": "3.5 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch04",
+          "title": "第4章 一阶系统的时域响应分析",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch04-01",
+              "title": "4.1 引子———案发时间是几点",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch04-02",
+              "title": "4.2 一阶系统的时域响应",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch04-03",
+              "title": "4.3 案发时间揭秘",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch04-04",
+              "title": "4.4 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch05",
+          "title": "第5章 二阶系统的时域响应分析",
+          "status": "available",
+          "topics": [
+            {
+              "id": "ch05-01",
+              "title": "二阶系统的一般形式",
+              "file": "ch05/05-01.md",
+              "widgets": [
+                "second-order-standard-form"
+              ],
+              "status": "available"
+            },
+            {
+              "id": "ch05-02",
+              "title": "二阶系统对初始状态的响应（零输入响应）",
+              "file": "ch05/05-02.md",
+              "widgets": [
+                "second-order-initial-lab"
+              ],
+              "status": "available"
+            },
+            {
+              "id": "ch05-03",
+              "title": "二阶系统的单位阶跃响应",
+              "file": "ch05/05-03.md",
+              "widgets": [
+                "second-order-step-lab"
+              ],
+              "status": "available"
+            },
+            {
+              "id": "ch05-04",
+              "title": "二阶系统性能指标分析",
+              "file": "ch05/05-04.md",
+              "widgets": [
+                "second-order-metrics-lab"
+              ],
+              "status": "available"
+            },
+            {
+              "id": "ch05-05",
+              "title": "二阶系统综合实验室",
+              "file": "ch05/05-05.md",
+              "widgets": [
+                "second-order-comparison-lab"
+              ],
+              "status": "available"
+            }
+          ]
+        },
+        {
+          "id": "ch06",
+          "title": "第6章 稳定性",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch06-01",
+              "title": "6.1 系统稳定性的定义",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch06-02",
+              "title": "6.2 稳定性与传递函数",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch06-03",
+              "title": "6.3 稳定性与状态空间方程",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch06-04",
+              "title": "6.4 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch07",
+          "title": "第7章 基于传递函数的控制器设计(1)———比例积分控制",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch07-01",
+              "title": "7.1 引子———燃烧卡路里",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch07-02",
+              "title": "7.2 比例控制",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch07-03",
+              "title": "7.3 比例积分控制器",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch07-04",
+              "title": "7.4 含有限制条件的控制器设计",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch07-05",
+              "title": "7.5 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch08",
+          "title": "第8章 基于传递函数的控制器设计(2)———根轨迹法",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch08-01",
+              "title": "8.1 根轨迹的研究目标与方法",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch08-02",
+              "title": "8.2 根轨迹绘制的基本规则",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch08-03",
+              "title": "8.3 根轨迹的几何性质",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch08-04",
+              "title": "8.4 基于根轨迹的控制器设计",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch08-05",
+              "title": "8.5 比例积分微分(PID)控制器",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch08-06",
+              "title": "8.6 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch09",
+          "title": "第9章 频率响应与分析",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch09-01",
+              "title": "9.1 引子———百万调音师",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch09-02",
+              "title": "9.2 频率特性推导",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch09-03",
+              "title": "9.3 一阶系统的频率响应",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch09-04",
+              "title": "9.4 二阶系统的频率响应",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch09-05",
+              "title": "9.5 伯德图",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch09-06",
+              "title": "9.6 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "ch10",
+          "title": "第10章 基于状态空间方程的控制器及观测器的设计与应用",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "ch10-01",
+              "title": "10.1 引子———指尖上的平衡",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch10-02",
+              "title": "10.2 系统的能控性",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch10-03",
+              "title": "10.3 线性状态反馈控制器",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch10-04",
+              "title": "10.4 观测器设计",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "ch10-05",
+              "title": "10.5 本章要点总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "appA",
+          "title": "附录 A 非线性系统的线性化",
+          "status": "planned",
+          "topics": []
+        },
+        {
+          "id": "appB",
+          "title": "附录 B 傅里叶级数与变换",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "appB-01",
+              "title": "B.1 三角函数的正交性",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "appB-02",
+              "title": "B.2 周期为2π的函数展开成傅里叶级数",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "appB-03",
+              "title": "B.3 周期为2L 的函数展开成傅里叶级数",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "appB-04",
+              "title": "B.4 傅里叶级数的复数表达形式",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "appB-05",
+              "title": "B.5 傅里叶变换",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vol2",
+      "title": "控制之美（卷 2）：最优化控制 MPC 与卡尔曼滤波器",
+      "chapters": [
+        {
+          "id": "v2-ch01",
+          "title": "第1章 绪论",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch01-01",
+              "title": "1.1动态系统与控制系统",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch01-02",
+              "title": "1.2本书的内容与特点",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-ch02",
+          "title": "第2章 数学基础",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch02-01",
+              "title": "2.1线性时不变系统状态空间方程的解",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch02-02",
+              "title": "2.2连续系统离散化",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch02-03",
+              "title": "2.3矩阵与向量的导数",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch02-04",
+              "title": "2.4向量矩阵求导的应用——线性回归",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch02-05",
+              "title": "2.5本章重点公式总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-ch03",
+          "title": "第3章 最优控制的基本概念",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch03-01",
+              "title": "3.1引子——独轮车模型",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch03-02",
+              "title": "3.2最优控制问题的组成与性能指标",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch03-03",
+              "title": "3.3控制问题构建以及性能指标的选择",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch03-04",
+              "title": "3.4本章重点公式总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-ch04",
+          "title": "第4章 动态规划与线性二次型调节器",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch04-01",
+              "title": "4.1贝尔曼最优化理论",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-02",
+              "title": "4.2数值方法",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-03",
+              "title": "4.3解析方法——动态规划的递归关系",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-04",
+              "title": "4.4线性二次型调节器",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-05",
+              "title": "4.5轨迹追踪问题分析",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-06",
+              "title": "4.6无人机控制案例分析",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch04-07",
+              "title": "4.7本章重点公式总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-ch05",
+          "title": "第5章 模型预测控制",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch05-01",
+              "title": "5.1模型预测控制的基本概念",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-02",
+              "title": "5.2二次规划问题",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-03",
+              "title": "5.3模型预测控制推导——无约束调节问题",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-04",
+              "title": "5.4轨迹追踪问题分析",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-05",
+              "title": "5.5含有约束的模型预测控制",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-06",
+              "title": "5.6案例分析——无人机高度控制",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-07",
+              "title": "5.7MPC的发展方向讨论",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch05-08",
+              "title": "5.8本章重点公式总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-ch06",
+          "title": "第6章卡尔曼滤波器",
+          "status": "planned",
+          "topics": [
+            {
+              "id": "v2-ch06-01",
+              "title": "6.1递归算法与数据融合",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch06-02",
+              "title": "6.2概率论初步，数据融合与协方差矩阵",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch06-03",
+              "title": "6.3线性卡尔曼滤波器推导",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch06-04",
+              "title": "6.4案例分析",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch06-05",
+              "title": "6.5扩展卡尔曼滤波器",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            },
+            {
+              "id": "v2-ch06-06",
+              "title": "6.6本章重点公式总结",
+              "file": null,
+              "widgets": [],
+              "status": "planned"
+            }
+          ]
+        },
+        {
+          "id": "v2-appA",
+          "title": "附录A代码汇总与说明",
+          "status": "planned",
+          "topics": []
+        },
+        {
+          "id": "v2-ref",
+          "title": "参考文献",
+          "status": "planned",
+          "topics": []
+        }
+      ]
+    }
+  ]
+}
