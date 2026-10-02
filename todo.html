@@ -200,10 +200,10 @@
    ========================================================= */
 const PROJECT = {
   name: "StudyPlusPlus",
-  phase: "T2/T3/T4/T5/T6/T7 已完成；T8/T9 前端进行中",
+  phase: "T1–T9 已完成；T10 独立验收中",
   devStatus: "编码中",
   lastUpdated: "2026-10-02",
-  nextAction: "等待 T8/T9 前端完成，随后进入 T10 验收"
+  nextAction: "执行 T10 独立验收与生产模式联调"
 };
 
 const UPDATE_LOG = [
@@ -391,37 +391,37 @@ const TASKS = [
     id: "T8",
     title: "设置与 LLM 配置",
     phase: "后端 + 前端",
-    status: "in_progress",
+    status: "completed",
     owner: "后端 + 前端智能体",
     deps: ["T6"],
     deliverable: "LLM 设置接口、设置页、Key 脱敏、连接测试、恢复默认。",
     acceptance: "默认 DeepSeek；可切换任意 OpenAI 兼容地址 / Ollama；代码无写死供应商。",
     subtasks: [
       { text: "实现 GET / PUT / test / reset LLM 设置接口", done: true },
-      { text: "实现设置页：provider、base_url、model、api_key、temperature、max_tokens", done: false },
+      { text: "实现设置页：provider、base_url、model、api_key、temperature、max_tokens", done: true },
       { text: "实现 API Key 脱敏显示与“留空不修改”逻辑", done: true },
-      { text: "实现测试连接按钮与结果反馈", done: false },
+      { text: "实现测试连接按钮与结果反馈", done: true },
       { text: "实现恢复默认 DeepSeek 配置", done: true },
       { text: "全文检查无硬编码 Key / 无写死仅 DeepSeek 逻辑", done: true },
-      { text: "完成 T8 验收并更新 todo.html", done: false }
+      { text: "完成 T8 验收并更新 todo.html", done: true }
     ]
   },
   {
     id: "T9",
     title: "进度与笔记",
     phase: "全栈",
-    status: "in_progress",
+    status: "completed",
     owner: "全栈智能体",
     deps: ["T1"],
     deliverable: "学习进度接口与 UI、章节百分比、笔记 CRUD 与持久化。",
     acceptance: "标记完成后目录树显示状态；重启后进度和笔记不丢失。",
     subtasks: [
       { text: "实现进度 GET / PUT 接口与章节百分比", done: true },
-      { text: "实现知识点状态切换控件", done: false },
-      { text: "实现目录树完成状态展示", done: false },
-      { text: "实现笔记新增、编辑、删除接口与 UI", done: false },
-      { text: "验证刷新页面与重启后端后数据保留", done: false },
-      { text: "完成 T9 验收并更新 todo.html", done: false }
+      { text: "实现知识点状态切换控件", done: true },
+      { text: "实现目录树完成状态展示", done: true },
+      { text: "实现笔记新增、编辑、删除接口与 UI", done: true },
+      { text: "验证刷新页面与重启后端后数据保留", done: true },
+      { text: "完成 T9 验收并更新 todo.html", done: true }
     ]
   },
   {
