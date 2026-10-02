@@ -10,7 +10,6 @@ const IGNORED_SELECTOR = [
   '.katex',
   '.katex-display',
   '.quote-fab',
-  'mark.annotation-highlight',
 ].join(',')
 
 function isIgnored(textNode: Text): boolean {
