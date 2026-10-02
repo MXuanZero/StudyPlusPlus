@@ -207,6 +207,7 @@ const PROJECT = {
 };
 
 const UPDATE_LOG = [
+  { date: "2026-10-02", text: "T10 自动化验收通过：97 tests passed；前端 build 通过；生产单端口 smoke 69/69；P1–P4 已修复（b1c3593/87eb81a/8bd1811/b234a96，报告 fa913af）。剩余人工浏览器复核。" },
   { date: "2026-10-02", text: "T10 启动：Lead 已完成生产单端口 smoke（SPA/健康/课程/计算/设置/进度/聊天 Mock SSE 均正常）；qa-dev 进行独立验收。" },
   { date: "2026-10-02", text: "T2 完成：两卷课程目录、ch05 五节 Markdown、内容加载器与课程 API 完成；后端测试 66 passed（ade333a / 3c23ed8 / 10e8f5c / b8bb4c5 / 095aeb2 / 559c455）。" },
   { date: "2026-10-02", text: "T6+T8 后端完成：LLM 客户端、Mock、Key 脱敏、设置接口、SSE 会话持久化；66 个后端测试通过（e88c34b/2797183/5b84177）。" },
@@ -433,16 +434,18 @@ const TASKS = [
     owner: "测试智能体 + 全栈",
     deps: ["T4", "T5", "T7", "T8", "T9"],
     deliverable: "pytest 全绿、前端 build 无错误、生产单端口可访问、验收记录。",
-    acceptance: "PRD 第 7 节 10 条 + 03 文档 6.1 / 6.2 用例全部通过。",
+    acceptance: "自动化验收已通过；浏览器级交互与视觉待人工复核后完成。",
     subtasks: [
-      { text: "后端 pytest 全绿", done: false },
-      { text: "前端 TypeScript 构建无错误，npm run build 成功", done: false },
-      { text: "生产模式 FastAPI 托管 frontend/dist，单端口访问", done: false },
-      { text: "逐条完成 PRD 第 7 节 MVP 验收清单", done: false },
-      { text: "逐条完成 03 文档 6.1 / 6.2 测试用例", done: false },
-      { text: "检查前端无 scipy/numpy 依赖、无硬编码 Key", done: false },
-      { text: "更新 docs 中的实际启动说明与最终进度", done: false },
-      { text: "完成 T10 验收并更新 todo.html", done: false }
+      { text: "后端 pytest 全绿（97 passed）", done: true },
+      { text: "前端 TypeScript 构建无错误，npm run build 成功", done: true },
+      { text: "生产模式 FastAPI 托管 frontend/dist，单端口访问", done: true },
+      { text: "PRD 第 7 节中可自动化 / API 部分逐条通过", done: true },
+      { text: "03 文档 6.1 计算正确性用例全部通过", done: true },
+      { text: "03 文档 6.2 浏览器交互用例（拖动 / 对比 / CSV / 流式停止）", done: false },
+      { text: "浏览器复核白色简洁风格、KaTeX 公式渲染、桌面端布局", done: false },
+      { text: "检查前端无 scipy/numpy 依赖、无硬编码 Key（QA 已通过）", done: true },
+      { text: "更新 docs 中的实际启动说明、验收报告与最终进度", done: true },
+      { text: "人工浏览器复核通过后，将 T10 标记为完成", done: false }
     ]
   }
 ];
