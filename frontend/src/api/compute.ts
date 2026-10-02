@@ -1,5 +1,5 @@
 /** Second-order compute endpoints (backend scipy/numpy is the single source of truth). */
-import { apiGet, apiPost, isBackendUnavailable } from './client'
+import { apiGet, apiPost } from './client'
 import type {
   CompareResponse,
   Preset,
@@ -19,28 +19,19 @@ async function withCache<T>(key: string, loader: () => Promise<T>): Promise<T> {
   return value
 }
 
-function mockEnabled(): boolean {
-  return import.meta.env.DEV
-}
-
 export async function simulateSecondOrder(
   request: SimulationRequest,
   signal?: AbortSignal,
 ): Promise<SimulationResponse> {
   const key = `sim:${JSON.stringify(request)}`
   return withCache(key, async () => {
-    try {
-      const data = await apiPost<SimulationResponse>('/compute/second-order/simulate', request, signal)
-      useAppStore.getState().setDataSource('api')
-      return data
-    } catch (error) {
-      if (mockEnabled() && isBackendUnavailable(error)) {
-        const { generateMockSimulation } = await import('../mocks/secondOrder')
-        useAppStore.getState().setDataSource('mock')
-        return generateMockSimulation(request)
-      }
-      throw error
-    }
+    const data = await apiPost<SimulationResponse>(
+      '/compute/second-order/simulate',
+      request,
+      signal,
+    )
+    useAppStore.getState().setDataSource('api')
+    return data
   })
 }
 
@@ -50,32 +41,21 @@ export async function compareSecondOrder(
 ): Promise<SimulationResponse[]> {
   const key = `cmp:${JSON.stringify(runs)}`
   return withCache(key, async () => {
-    try {
-      const data = await apiPost<CompareResponse>('/compute/second-order/compare', { runs }, signal)
-      useAppStore.getState().setDataSource('api')
-      return data.results ?? []
-    } catch (error) {
-      if (mockEnabled() && isBackendUnavailable(error)) {
-        const { generateMockSimulation } = await import('../mocks/secondOrder')
-        useAppStore.getState().setDataSource('mock')
-        return runs.map((run) => generateMockSimulation(run))
-      }
-      throw error
-    }
+    const data = await apiPost<CompareResponse>(
+      '/compute/second-order/compare',
+      { runs },
+      signal,
+    )
+    useAppStore.getState().setDataSource('api')
+    return data.results ?? []
   })
 }
 
 export async function fetchPresets(signal?: AbortSignal): Promise<Preset[]> {
-  try {
-    const data = await apiGet<Preset[] | { presets: Preset[] }>('/compute/second-order/presets', signal)
-    useAppStore.getState().setDataSource('api')
-    return Array.isArray(data) ? data : data.presets ?? []
-  } catch (error) {
-    if (mockEnabled() && isBackendUnavailable(error)) {
-      const { getMockPresets } = await import('../mocks/secondOrder')
-      useAppStore.getState().setDataSource('mock')
-      return getMockPresets()
-    }
-    throw error
-  }
+  const data = await apiGet<Preset[] | { presets: Preset[] }>(
+    '/compute/second-order/presets',
+    signal,
+  )
+  useAppStore.getState().setDataSource('api')
+  return Array.isArray(data) ? data : data.presets ?? []
 }
