@@ -25,6 +25,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 SESSION_ID_PREFIX = "sess_"
 MESSAGE_ID_PREFIX = "msg_"
 DEFAULT_SESSION_TITLE = "新会话"
+LEGACY_DEFAULT_SESSION_TITLES = {"新会话", "新对话"}
 HISTORY_LIMIT = 40
 
 
@@ -171,26 +172,36 @@ def _fallback_session_title(user_content: str) -> str:
 async def _maybe_generate_session_title(
     session_id: str,
     session_row: Any,
-    user_content: str,
     config: Any,
 ) -> None:
-    """Generate a title from the first user message when it is still default."""
+    """Generate a title from the first user message when it is still default.
+
+    Handles both the current default ``"新会话"`` and the legacy
+    ``"新对话"`` rows, so existing default-named conversations get renamed on
+    their next message.
+    """
 
     current_title = (session_row["title"] or "").strip()
-    if current_title and current_title != DEFAULT_SESSION_TITLE:
+    if current_title and current_title not in LEGACY_DEFAULT_SESSION_TITLES:
         return
 
     with get_connection() as conn:
         row = conn.execute(
-            "SELECT COUNT(*) AS n FROM chat_messages WHERE session_id = ? AND role = 'user'",
+            """
+            SELECT content FROM chat_messages
+            WHERE session_id = ? AND role = 'user'
+            ORDER BY id ASC
+            LIMIT 1
+            """,
             (session_id,),
         ).fetchone()
-    if row is None or int(row["n"]) != 1:
+    if row is None or not row["content"]:
         return
+    first_user_content = str(row["content"])
 
-    title = await llm.summarize_title(user_content, config)
+    title = await llm.summarize_title(first_user_content, config)
     if not title:
-        title = _fallback_session_title(user_content)
+        title = _fallback_session_title(first_user_content)
     if title and title != current_title:
         _update_session_title(session_id, title)
 
@@ -330,7 +341,7 @@ async def stream_message(session_id: str, payload: ChatStreamRequest) -> Streami
     mode = "live" if config.api_key else "mock"
 
     # 第一个用户消息到达时自动生成会话标题；失败则用问题前 18 字兜底。
-    await _maybe_generate_session_title(session_id, session, user_content, config)
+    await _maybe_generate_session_title(session_id, session, config)
 
     history = _fetch_history(session_id)
     assistant_meta = {"message_id": _new_id(MESSAGE_ID_PREFIX), "mode": mode}
