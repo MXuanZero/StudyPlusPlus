@@ -488,7 +488,11 @@ def _build_diagnostics(
     if clipped:
         diagnostics.append("响应幅值超出可显示范围，已截断处理")
 
-    if classification != "unstable" and input_type == "step" and y.size:
+    if input_type == "step" and y.size and classification == "undamped":
+        # An undamped system oscillates forever; a longer time window cannot
+        # make it settle, so the generic "increase t_end" hint is misleading.
+        diagnostics.append("系统无阻尼，响应持续等幅振荡，不会收敛到稳态")
+    elif classification != "unstable" and input_type == "step" and y.size:
         settling_time_5pct = _settling_time(t, y, 1.0, 0.05)
         if settling_time_5pct is None:
             diagnostics.append("当前时间范围可能不足以观察到稳态，建议增大 t_end")
